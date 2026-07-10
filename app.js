@@ -14,6 +14,8 @@ let appState = {
   personalGoals: [],
   literacyProgress: [],
   forumPosts: [],
+  portfolioProjects: [],
+  goals: [],
   interviewState: {
     active: false,
     role: '',
@@ -48,63 +50,13 @@ const SCHEMES = [
   { name: "European Union Women Innovators Prize", category: "Cash Award", benefit: "€100,000 cash prizes for female founders and scientific innovators" }
 ];
 
-const DEFAULT_SAVINGS_GOALS = [
-  { id: 1, name: "Emergency Fund", saved: 500, target: 1000 },
-  { id: 2, name: "MacBook for Coding", saved: 350, target: 1000 }
+const FUNDING_SOURCES = [
+  { name: "Women Founder Seed Grant", stage: "Early Stage", region: "Global", sector: "EdTech / CareerTech", support: "$20,000 non-dilutive grant + mentorship" },
+  { name: "SheBuilds Accelerator", stage: "MVP", region: "Asia", sector: "SaaS / AI", support: "12-week accelerator, pitch day, expert office hours" },
+  { name: "ImpactHer Innovation Fund", stage: "Growth", region: "Africa", sector: "Fintech / Social Impact", support: "$50,000 blended capital support" },
+  { name: "Future of Work Women Fellowship", stage: "Idea", region: "Europe", sector: "Future of Work / Education", support: "Fellowship stipend, GTM support, founder circle" },
+  { name: "Women in Commerce VC Scout Program", stage: "Pre-seed", region: "Americas", sector: "Commerce / Consumer", support: "Investor access and traction review sessions" }
 ];
-
-const LITERACY_MODULES = [
-  { id: 'budgeting', title: "Budgeting Basics", summary: "Needs vs wants, monthly planning, and cash flow discipline." },
-  { id: 'credit', title: "Credit Score Fundamentals", summary: "How repayment history, utilization, and loans affect your score." },
-  { id: 'investing', title: "Investing for Beginners", summary: "Risk, diversification, compounding, and long-term thinking." },
-  { id: 'taxes', title: "Taxes & Compliance", summary: "Income records, deduction awareness, and business basics." }
-];
-
-const FUNDING_OPPORTUNITIES = [
-  { name: "Women Founders Seed Fund", type: "Seed Capital", stage: "Early-stage", benefit: "$25,000 non-dilutive support for women-led MVPs" },
-  { name: "SheLaunch Impact Grant", type: "Grant", stage: "Idea to MVP", benefit: "Grant, mentor access, and investor showcase for social ventures" },
-  { name: "FemTech Angels Network", type: "Angel Funding", stage: "Growth", benefit: "Warm intros, fundraising office hours, and pitch review support" },
-  { name: "Global Women Innovators Prize", type: "Competition", stage: "Scale-up", benefit: "Cash award plus international media visibility" }
-];
-
-const STARTUP_RESOURCES = [
-  { title: "Pitch Deck Checklist", description: "Problem, market, solution, traction, business model, GTM, and ask." },
-  { title: "Go-To-Market Planner", description: "Define ICP, acquisition channels, content hooks, and launch metrics." },
-  { title: "Founder Ops Stack", description: "Track CRM, analytics, finance, and documentation from day one." },
-  { title: "Grant Readiness Guide", description: "Keep founder bio, problem statement, impact metrics, and budget forecast ready." }
-];
-
-const TRANSLATIONS = {
-  en: {
-    welcomePrefix: "Hello",
-    voiceReady: "Voice Ready",
-    voiceUnavailable: "Voice Unavailable",
-    authDemo: "Demo Auth",
-    authFirebase: "Firebase Auth",
-    languageLabel: "English",
-    assistantGreeting: "Hello! I am your global ElevateHer Assistant. Ask me anything about learning roadmaps, resumes, business models, or saving budgets!",
-    roadmapHint: "Generate personalized step-by-step career path roadmaps, search scholarships, and track certifications inside the Education Hub.",
-    careerHint: "To run mock interviews, portfolio snapshots, or resume ATS analysis, open the Career Hub.",
-    financeHint: "Track your budget, savings goals, literacy modules, and scheme finder inside the Finance Hub.",
-    startupHint: "Use Entrepreneurship tools for business canvas, funding finder, and branding support."
-  },
-  hi: {
-    welcomePrefix: "Namaste",
-    voiceReady: "Voice Ready",
-    voiceUnavailable: "Voice Unavailable",
-    authDemo: "Demo Auth",
-    authFirebase: "Firebase Auth",
-    languageLabel: "Hindi",
-    assistantGreeting: "Namaste! Main aapki ElevateHer Assistant hoon. Learning roadmap, resume, business model, ya budget ke baare me pooch sakti hain.",
-    roadmapHint: "Education Hub me roadmap, scholarship search, aur certification tracking available hai.",
-    careerHint: "Mock interview, portfolio snapshot, aur ATS analysis ke liye Career Hub kholiye.",
-    financeHint: "Budget, savings goals, literacy modules, aur scheme finder Finance Hub me milenge.",
-    startupHint: "Business canvas, funding finder, aur branding support ke liye Entrepreneurship tab use kijiye."
-  }
-};
-
-let firebaseAuth = null;
-let isHandlingFirebaseAuth = false;
 
 // ================= INITIALIZATION & AUTHENTICATION =================
 document.addEventListener('DOMContentLoaded', () => {
@@ -127,98 +79,33 @@ function saveUsersToLocalStorage() {
   localStorage.setItem('elevateher_users', JSON.stringify(appState.users));
 }
 
-function getDefaultUserProfile(name) {
+function createDefaultUser(name, password) {
   return {
     name,
-    password: "",
+    password,
     level: "Level 1: Explorer",
     points: 0,
     streak: 1,
     certifications: [],
     studyTasks: [],
     transactions: [],
-    savingsGoals: DEFAULT_SAVINGS_GOALS.map(goal => ({ ...goal, id: Date.now() + Math.random() })),
-    personalGoals: [],
-    literacyProgress: [],
+    portfolioProjects: [],
+    goals: [],
     forumPosts: [
       { id: 1, title: "Welcome to ElevateHer Forums!", body: "Ask questions, network, and grow together.", author: "System", date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }
     ]
   };
 }
 
-function ensureUserProfile(email, profileName, password = "") {
-  if (!appState.users[email]) {
-    appState.users[email] = getDefaultUserProfile(profileName || email.split('@')[0]);
-  }
-
-  if (profileName) appState.users[email].name = profileName;
-  if (password) appState.users[email].password = password;
-  if (!appState.users[email].savingsGoals) appState.users[email].savingsGoals = DEFAULT_SAVINGS_GOALS.map(goal => ({ ...goal, id: Date.now() + Math.random() }));
-  if (!appState.users[email].personalGoals) appState.users[email].personalGoals = [];
-  if (!appState.users[email].literacyProgress) appState.users[email].literacyProgress = [];
-  saveUsersToLocalStorage();
-  return appState.users[email];
-}
-
-function initializeFirebaseAuth() {
-  const config = window.ELEVATEHER_FIREBASE_CONFIG;
-  const authStatus = document.getElementById('auth-status');
-
-  if (window.firebase && config && config.apiKey) {
-    try {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(config);
-      }
-      firebaseAuth = firebase.auth();
-      appState.authMode = 'firebase';
-      updateAuthModeUI();
-
-      firebaseAuth.onAuthStateChanged(async user => {
-        if (isHandlingFirebaseAuth) return;
-        isHandlingFirebaseAuth = true;
-
-        if (user) {
-          const localUser = ensureUserProfile(user.email, user.displayName || user.email.split('@')[0]);
-          startSession(user.email, localUser, true);
-        } else if (!localStorage.getItem('elevateher_active_session')) {
-          appState.currentUser = null;
-          document.getElementById('app-view').classList.add('hidden');
-          document.getElementById('auth-view').classList.remove('hidden');
-        }
-
-        isHandlingFirebaseAuth = false;
-      });
-
-      if (authStatus) {
-        authStatus.innerText = "Firebase auth configured. Email/password aur Google sign-in ab secure mode me chalenge.";
-      }
-      return;
-    } catch (error) {
-      console.error('Firebase initialization failed:', error);
-    }
-  }
-
-  appState.authMode = 'demo';
-  updateAuthModeUI();
-  if (authStatus) {
-    authStatus.innerText = "Demo auth active. Firebase config add karte hi secure email/password aur Google sign-in enable ho jayega.";
-  }
-}
-
-function hasFirebaseAuth() {
-  return !!firebaseAuth;
-}
-
-function updateAuthModeUI() {
-  const badge = document.getElementById('auth-mode-badge');
-  if (badge) {
-    badge.innerText = hasFirebaseAuth() ? TRANSLATIONS[appState.language].authFirebase : TRANSLATIONS[appState.language].authDemo;
-  }
-}
-
-function showFriendlyError(error, fallbackMessage) {
-  const message = error && error.message ? error.message : fallbackMessage;
-  alert(message);
+function ensureUserCollections(user) {
+  user.certifications = user.certifications || [];
+  user.studyTasks = user.studyTasks || [];
+  user.transactions = user.transactions || [];
+  user.portfolioProjects = user.portfolioProjects || [];
+  user.goals = user.goals || [];
+  user.forumPosts = user.forumPosts || [
+    { id: 1, title: "Welcome to ElevateHer Forums!", body: "Ask questions, network, and grow together.", author: "System", date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }
+  ];
 }
 
 function animateCardSwitch(fromCardId, toCardId) {
@@ -269,22 +156,12 @@ function setupAuthEventListeners() {
     const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
 
-    try {
-      if (hasFirebaseAuth()) {
-        const credential = await firebaseAuth.createUserWithEmailAndPassword(email, password);
-        if (credential.user) {
-          await credential.user.updateProfile({ displayName: name });
-        }
-        ensureUserProfile(email, name);
-        alert("Account created successfully with Firebase.");
-      } else {
-        if (appState.users[email]) {
-          alert("An account with this email already exists!");
-          return;
-        }
-        ensureUserProfile(email, name, password);
-        alert("Account created successfully! Please log in.");
-      }
+    if (appState.users[email]) {
+      alert("An account with this email already exists!");
+      return;
+    }
+
+    appState.users[email] = createDefaultUser(name, password);
 
       signupForm.reset();
       animateCardSwitch('signup-card', 'login-card');
@@ -316,21 +193,12 @@ function setupAuthEventListeners() {
     }
   });
 
-  googleBtn.addEventListener('click', async () => {
-    try {
-      if (hasFirebaseAuth()) {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        const result = await firebaseAuth.signInWithPopup(provider);
-        const email = result.user.email;
-        const userProfile = ensureUserProfile(email, result.user.displayName || "Google Member");
-        startSession(email, userProfile, true);
-      } else {
-        const email = "google_user@gmail.com";
-        const userProfile = ensureUserProfile(email, "Google Member", "google_login_mock");
-        startSession(email, userProfile);
-      }
-    } catch (error) {
-      showFriendlyError(error, "Google sign-in failed.");
+  googleBtn.addEventListener('click', () => {
+    // Simulated Google Login
+    const email = "google_user@gmail.com";
+    if (!appState.users[email]) {
+      appState.users[email] = createDefaultUser("Google Member", "google_login_mock");
+      saveUsersToLocalStorage();
     }
   });
 
@@ -365,7 +233,8 @@ function restoreSession() {
   }
 }
 
-function startSession(email, user, isRemoteAuth = false) {
+function startSession(email, user) {
+  ensureUserCollections(user);
   appState.currentUser = email;
   if (!isRemoteAuth || !hasFirebaseAuth()) {
     localStorage.setItem('elevateher_active_session', email);
@@ -377,9 +246,8 @@ function startSession(email, user, isRemoteAuth = false) {
   appState.certifications = user.certifications || [];
   appState.studyTasks = user.studyTasks || [];
   appState.transactions = user.transactions || [];
-  appState.savingsGoals = user.savingsGoals || DEFAULT_SAVINGS_GOALS.map(goal => ({ ...goal, id: Date.now() + Math.random() }));
-  appState.personalGoals = user.personalGoals || [];
-  appState.literacyProgress = user.literacyProgress || [];
+  appState.portfolioProjects = user.portfolioProjects || [];
+  appState.goals = user.goals || [];
   appState.forumPosts = user.forumPosts || [];
 
   // Update UI Elements
@@ -412,13 +280,12 @@ function startSession(email, user, isRemoteAuth = false) {
   renderForumPosts();
   renderScholarships(SCHOLARSHIPS);
   renderSchemes(SCHEMES);
-  renderLiteracyModules();
-  renderFundingList(FUNDING_OPPORTUNITIES);
-  renderStartupResources();
-  renderGoalTracker();
-  changeMentorPersona();
+  renderPortfolioProjects();
+  renderGoalList();
+  renderFundingSources(FUNDING_SOURCES);
+  renderSmartRecommendations();
   renderSocializePanel();
-  applyLanguage();
+  changeMentorPersona();
 
   // Toggle View
   document.getElementById('auth-view').classList.add('hidden');
@@ -431,11 +298,11 @@ function updateUserDataState() {
     user.certifications = appState.certifications;
     user.studyTasks = appState.studyTasks;
     user.transactions = appState.transactions;
-    user.savingsGoals = appState.savingsGoals;
-    user.personalGoals = appState.personalGoals;
-    user.literacyProgress = appState.literacyProgress;
+    user.portfolioProjects = appState.portfolioProjects;
+    user.goals = appState.goals;
     user.forumPosts = appState.forumPosts;
     saveUsersToLocalStorage();
+    renderSmartRecommendations();
   }
 }
 
@@ -515,6 +382,7 @@ function setupHubEventListeners() {
   document.getElementById('study-form').addEventListener('submit', handleAddStudyTask);
   document.getElementById('search-scholarship-btn').addEventListener('click', handleScholarshipSearch);
   document.getElementById('generate-notes-btn').addEventListener('click', generateLearningNotes);
+  document.getElementById('ask-learning-btn').addEventListener('click', askLearningAssistant);
 
   // 2. Career Hub Events
   document.getElementById('analyze-resume-btn').addEventListener('click', analyzeResumeATS);
@@ -524,16 +392,16 @@ function setupHubEventListeners() {
     if (e.key === 'Enter') processInterviewTurn();
   });
   document.getElementById('check-gap-btn').addEventListener('click', checkSkillGap);
-  document.getElementById('build-portfolio-btn').addEventListener('click', buildPortfolioSnapshot);
+  document.getElementById('build-resume-btn').addEventListener('click', buildResumeDraft);
+  document.getElementById('portfolio-form').addEventListener('submit', handleAddPortfolioProject);
   document.getElementById('generate-career-roadmap-btn').addEventListener('click', generateCareerRoadmap);
-  document.getElementById('analyze-doc-btn').addEventListener('click', analyzeDocumentDraft);
 
   // 3. Finance Hub Events
   document.getElementById('transaction-form').addEventListener('submit', handleAddTransaction);
   document.getElementById('savings-goal-form').addEventListener('submit', handleAddSavingsGoal);
   document.getElementById('check-loan-btn').addEventListener('click', checkLoanEligibility);
   document.getElementById('search-scheme-btn').addEventListener('click', handleSchemeSearch);
-  document.getElementById('generate-investment-guide-btn').addEventListener('click', generateInvestmentGuidance);
+  document.getElementById('generate-investment-btn').addEventListener('click', generateInvestmentGuidance);
 
   // 4. Entrepreneurship Hub Events
   document.getElementById('generate-biz-btn').addEventListener('click', generateBusinessModel);
@@ -548,10 +416,13 @@ function setupHubEventListeners() {
     if (e.key === 'Enter') sendMentorMessage();
   });
   document.getElementById('forum-post-form').addEventListener('submit', handleAddForumPost);
-  document.getElementById('match-mentor-btn').addEventListener('click', handleMentorMatch);
-  document.getElementById('goal-tracker-form').addEventListener('submit', handleAddTrackedGoal);
+  document.getElementById('match-mentor-btn').addEventListener('click', matchMentor);
+  document.getElementById('goal-form').addEventListener('submit', handleAddGoal);
 
-  // 6. Floating Global AI Assistant
+  // 6. Shared AI Utilities
+  document.getElementById('analyze-doc-btn').addEventListener('click', analyzeGenericDocument);
+
+  // 7. Floating Global AI Assistant
   const trigger = document.getElementById('floating-chat-trigger');
   const panel = document.getElementById('floating-chat-panel');
   const closeBtn = document.getElementById('close-floating-chat');
@@ -803,145 +674,62 @@ function handleScholarshipSearch() {
 }
 
 function generateLearningNotes() {
-  const source = document.getElementById('notes-topic').value.trim();
-  const mode = document.getElementById('notes-mode').value;
-  const output = document.getElementById('notes-output');
+  const topic = document.getElementById('notes-topic').value.trim();
+  const source = document.getElementById('notes-source').value.trim();
+  const out = document.getElementById('notes-output');
 
-  if (!source) {
-    alert("Please add a topic or some notes first.");
+  if (!topic || !source) {
+    alert("Please enter a topic and source content!");
     return;
   }
 
-  const cleaned = source.split(/\n+/).map(item => item.trim()).filter(Boolean);
-  const keywords = cleaned.join(' ').split(/\s+/).filter(word => word.length > 4).slice(0, 6);
-  output.classList.remove('hidden');
+  const chunks = source
+    .split(/[\n\.]+/)
+    .map(line => line.trim())
+    .filter(Boolean)
+    .slice(0, 4);
 
-  if (mode === 'summary') {
-    output.innerHTML = `
-      <div class="insight-box">
-        <h4>Summary Notes</h4>
-        <ul>
-          <li>Core focus: ${cleaned[0] || source.substring(0, 80)}</li>
-          <li>Important concepts: ${keywords.join(', ') || 'fundamentals, practice, review'}</li>
-          <li>Next action: Turn this into one project, one quiz, and one mentor question.</li>
-        </ul>
-      </div>
-    `;
-  } else if (mode === 'quiz') {
-    output.innerHTML = `
-      <div class="insight-box">
-        <h4>Quick Quiz</h4>
-        <ul>
-          <li>What problem does this topic solve in real life?</li>
-          <li>Which 3 tools or concepts matter most here?</li>
-          <li>How would you explain this topic to a beginner in 2 lines?</li>
-        </ul>
-      </div>
-    `;
-  } else {
-    output.innerHTML = `
-      <div class="insight-box">
-        <h4>Flashcards</h4>
-        <ul>
-          ${keywords.map(word => `<li><strong>${word}</strong>: define it, give one use case, and one example.</li>`).join('')}
-        </ul>
-      </div>
-    `;
-  }
+  const bulletHTML = chunks.length > 0
+    ? chunks.map((item, idx) => `<li><strong>Key Insight ${idx + 1}:</strong> ${item}</li>`).join('')
+    : `<li>Break the topic into definition, process, examples, and mistakes.</li>`;
 
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <h4 style="font-size:15px; margin-bottom:8px; color: var(--accent-pink);">${topic} - Smart Notes</h4>
+    <ul style="list-style: inside; display:flex; flex-direction:column; gap:8px; font-size:13px; color:var(--text-main);">
+      ${bulletHTML}
+    </ul>
+    <div style="margin-top: 12px; font-size: 12px; color: var(--text-muted);">
+      Revision Tip: Convert these notes into one practical task and one self-test question.
+    </div>
+  `;
   addPoints(12);
 }
 
-function buildPortfolioSnapshot() {
-  const headline = document.getElementById('portfolio-name').value.trim();
-  const skills = document.getElementById('portfolio-skills').value.trim();
-  const projects = document.getElementById('portfolio-projects').value.trim();
-  const output = document.getElementById('portfolio-output');
+function askLearningAssistant() {
+  const topic = document.getElementById('notes-topic').value.trim();
+  const source = document.getElementById('notes-source').value.trim();
+  const out = document.getElementById('notes-output');
 
-  if (!headline || !skills || !projects) {
-    alert("Please fill headline, skills, and projects.");
+  if (!topic) {
+    alert("Please enter a learning topic first!");
     return;
   }
 
-  const skillTags = skills.split(',').map(skill => skill.trim()).filter(Boolean);
-  output.classList.remove('hidden');
-  output.innerHTML = `
-    <div class="insight-box">
-      <h4>${headline}</h4>
-      <p>${projects}</p>
-      <div class="tag-row">${skillTags.map(skill => `<span class="tag-pill">${skill}</span>`).join('')}</div>
-    </div>
+  let reply = `To master ${topic}, start with fundamentals, practice one small example, and then explain it back in your own words.`;
+  const lower = `${topic} ${source}`.toLowerCase();
+
+  if (lower.includes('sql')) reply = "For SQL, learn SELECT, WHERE, GROUP BY, and JOINs in that order. Then solve 5 dataset questions using real tables.";
+  else if (lower.includes('ux') || lower.includes('design')) reply = "For UX, move through user research, wireframes, prototypes, and usability testing. Build one case study after every major concept.";
+  else if (lower.includes('python') || lower.includes('data')) reply = "For Python/Data, focus on syntax, lists/dictionaries, Pandas, and basic EDA before jumping into models.";
+
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <h4 style="font-size:15px; margin-bottom:8px; color: var(--accent-teal);">Learning Assistant Response</h4>
+    <p style="font-size:13px; line-height:1.6; color:var(--text-main);">${reply}</p>
+    <div style="margin-top: 12px; font-size: 12px; color: var(--text-muted);">Next Action: Add one study task in the planner and one checkpoint question for yourself.</div>
   `;
-  addPoints(20);
-}
-
-function generateCareerRoadmap() {
-  const goal = document.getElementById('career-goal').value.trim();
-  const timeline = document.getElementById('career-timeline').value;
-  const output = document.getElementById('career-roadmap-output');
-
-  if (!goal) {
-    alert("Please enter a target role.");
-    return;
-  }
-
-  const phases = [
-    { title: "Foundation Sprint", desc: `Review skills, rewrite resume, and build proof-of-work for ${goal}.` },
-    { title: "Visibility Layer", desc: "Strengthen LinkedIn, portfolio, mentor feedback, and mock interviews." },
-    { title: "Targeted Applications", desc: "Apply to best-fit roles, track responses, and refine your pitch weekly." }
-  ];
-
-  output.classList.remove('hidden');
-  output.innerHTML = `
-    <div style="font-size: 14px; font-weight: 600; color: var(--accent-rose); margin-bottom: 20px;">
-      <i class="fa-solid fa-circle-check"></i> Career roadmap for ${goal} (${timeline})
-    </div>
-  `;
-
-  phases.forEach((phase, idx) => {
-    output.innerHTML += `
-      <div class="timeline-item">
-        <div class="timeline-dot ${idx === 0 ? 'completed' : ''}">${idx === 0 ? '<i class="fa-solid fa-check" style="font-size:8px;"></i>' : ''}</div>
-        <div class="timeline-content">
-          <h4>Phase ${idx + 1}: ${phase.title}</h4>
-          <p>${phase.desc}</p>
-        </div>
-      </div>
-    `;
-  });
-
-  addPoints(18);
-}
-
-function analyzeDocumentDraft() {
-  const type = document.getElementById('doc-type').value;
-  const text = document.getElementById('doc-input').value.trim();
-  const output = document.getElementById('doc-output');
-
-  if (!text) {
-    alert("Please paste your document draft.");
-    return;
-  }
-
-  const lengthScore = Math.min(40, Math.round(text.length / 25));
-  const structureScore = /problem|goal|experience|impact|result|market/i.test(text) ? 35 : 20;
-  const clarityScore = text.split('.').length > 4 ? 20 : 12;
-  const total = Math.min(95, lengthScore + structureScore + clarityScore);
-
-  const suggestions = {
-    resume: ["Add measurable outcomes.", "Align keywords with target role.", "Use stronger action verbs."],
-    sop: ["Make motivation more personal.", "Connect past work with future goal.", "End with clear impact vision."],
-    'business-plan': ["Clarify problem-solution fit.", "Add revenue logic and target audience.", "Show traction or validation signals."]
-  };
-
-  output.classList.remove('hidden');
-  output.innerHTML = `
-    <div class="insight-box">
-      <h4>${type.toUpperCase()} Review Score: ${total}/100</h4>
-      <ul>${suggestions[type].map(item => `<li>${item}</li>`).join('')}</ul>
-    </div>
-  `;
-  addPoints(16);
+  addPoints(8);
 }
 
 // ------ B. CAREER ENGINE ------
@@ -1164,6 +952,155 @@ function checkSkillGap() {
   }, 1000);
 }
 
+function buildResumeDraft() {
+  const name = document.getElementById('builder-name').value.trim();
+  const role = document.getElementById('builder-role').value.trim();
+  const skills = document.getElementById('builder-skills').value.trim();
+  const exp = document.getElementById('builder-exp').value.trim();
+  const out = document.getElementById('resume-builder-output');
+
+  if (!name || !role || !skills || !exp) {
+    alert("Please fill all resume builder fields!");
+    return;
+  }
+
+  const skillList = skills.split(',').map(s => s.trim()).filter(Boolean);
+  const expBullets = exp
+    .split(/[\n\.]+/)
+    .map(item => item.trim())
+    .filter(Boolean)
+    .slice(0, 4);
+
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <div style="padding: 16px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(255,255,255,0.03);">
+      <h4 style="font-size:18px; font-family: var(--font-family-title); margin-bottom:6px;">${name}</h4>
+      <div style="font-size:13px; color: var(--accent-pink); margin-bottom:14px;">Target Role: ${role}</div>
+      <div style="margin-bottom:12px;">
+        <strong style="font-size:13px;">Professional Summary</strong>
+        <p style="font-size:13px; color:var(--text-muted); margin-top:6px;">Results-oriented candidate preparing for ${role} opportunities with strengths in ${skillList.slice(0, 3).join(', ')} and hands-on execution across projects and self-driven learning.</p>
+      </div>
+      <div style="margin-bottom:12px;">
+        <strong style="font-size:13px;">Core Skills</strong>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+          ${skillList.map(skill => `<span class="btn btn-secondary btn-sm" style="pointer-events:none;">${skill}</span>`).join('')}
+        </div>
+      </div>
+      <div>
+        <strong style="font-size:13px;">Experience Highlights</strong>
+        <ul style="list-style: inside; display:flex; flex-direction:column; gap:6px; margin-top:8px; font-size:13px;">
+          ${expBullets.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  `;
+  addPoints(18);
+}
+
+function renderPortfolioProjects() {
+  const container = document.getElementById('portfolio-list');
+  if (!container) return;
+
+  if (appState.portfolioProjects.length === 0) {
+    container.innerHTML = `<div style="font-size:12px; color:var(--text-muted); text-align:center;">No portfolio projects added yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  appState.portfolioProjects.forEach(project => {
+    container.innerHTML += `
+      <div class="card-item" style="flex-direction:column; align-items:stretch; gap:10px;">
+        <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+          <div>
+            <div class="card-item-title">${project.title}</div>
+            <div class="card-item-subtitle">${project.stack}${project.link ? ` • ${project.link}` : ''}</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="deletePortfolioProject(${project.id})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+        <div style="font-size:13px; color:var(--text-main); line-height:1.5;">${project.summary}</div>
+      </div>
+    `;
+  });
+}
+
+function handleAddPortfolioProject(e) {
+  e.preventDefault();
+  const title = document.getElementById('portfolio-project').value.trim();
+  const stack = document.getElementById('portfolio-stack').value.trim();
+  const link = document.getElementById('portfolio-link').value.trim();
+  const summary = document.getElementById('portfolio-summary').value.trim();
+
+  if (!title || !stack || !summary) return;
+
+  appState.portfolioProjects.unshift({
+    id: Date.now(),
+    title,
+    stack,
+    link,
+    summary
+  });
+
+  updateUserDataState();
+  renderPortfolioProjects();
+  document.getElementById('portfolio-form').reset();
+  addPoints(14);
+}
+
+window.deletePortfolioProject = function(id) {
+  appState.portfolioProjects = appState.portfolioProjects.filter(project => project.id !== id);
+  updateUserDataState();
+  renderPortfolioProjects();
+};
+
+function generateCareerRoadmap() {
+  const role = document.getElementById('career-roadmap-role').value.trim();
+  const out = document.getElementById('career-roadmap-output');
+
+  if (!role) {
+    alert("Please enter a target role!");
+    return;
+  }
+
+  let steps = [
+    `Build core concepts and vocabulary for ${role}.`,
+    `Complete 2 guided projects aligned with ${role}.`,
+    `Create a resume + portfolio tailored for ${role}.`,
+    `Practice interviews, networking, and applications weekly.`
+  ];
+
+  if (role.toLowerCase().includes('data')) {
+    steps = [
+      "Learn SQL, Excel, and Python/Pandas fundamentals.",
+      "Practice dashboards, KPIs, and storytelling with data.",
+      "Build 2 analysis case studies with before/after insights.",
+      "Target analyst internships, freelance tasks, and portfolio reviews."
+    ];
+  } else if (role.toLowerCase().includes('design')) {
+    steps = [
+      "Study UX research, information architecture, and Figma basics.",
+      "Create wireframes and polished UI systems for 2 use cases.",
+      "Publish detailed case studies focused on process and impact.",
+      "Apply to product design roles with portfolio walkthrough practice."
+    ];
+  }
+
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <div class="timeline">
+      ${steps.map((step, index) => `
+        <div class="timeline-item">
+          <div class="timeline-dot ${index === 0 ? 'completed' : ''}">${index === 0 ? '<i class="fa-solid fa-check" style="font-size:8px;"></i>' : ''}</div>
+          <div class="timeline-content">
+            <h4>Stage ${index + 1}</h4>
+            <p>${step}</p>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  addPoints(16);
+}
+
 
 // ------ C. FINANCE ENGINE ------
 function renderTransactions() {
@@ -1283,315 +1220,55 @@ function handleSchemeSearch() {
   renderSchemes(filtered);
 }
 
-function renderSavingsGoals() {
-  const container = document.getElementById('savings-goals-list');
-  if (!container) return;
+window.loadLiteracyModule = function(moduleKey) {
+  const out = document.getElementById('literacy-output');
+  const modules = {
+    budgeting: {
+      title: "Budgeting Foundations",
+      body: "Start by splitting monthly cash flow into essentials, growth, and flexible spending. Review subscriptions, track weekly leaks, and assign every rupee or dollar a job."
+    },
+    emergency: {
+      title: "Emergency Funds",
+      body: "Aim for 3-6 months of essentials. Keep this amount in low-risk, easy-access savings and build it before aggressive investing or non-essential purchases."
+    },
+    credit: {
+      title: "Debt & Credit Basics",
+      body: "Pay on time, keep utilization low, and avoid stacking high-interest debt. Strong credit habits reduce borrowing costs and improve future financial flexibility."
+    }
+  };
 
-  if (!appState.savingsGoals.length) {
-    container.innerHTML = `<div class="empty-state">No savings goals yet. Add your first goal above.</div>`;
-    return;
-  }
-
-  container.innerHTML = '';
-  appState.savingsGoals.forEach(goal => {
-    const percent = Math.min(100, Math.round((goal.saved / goal.target) * 100));
-    container.innerHTML += `
-      <div class="card-item" style="flex-direction: column; align-items: stretch;">
-        <div style="display:flex; justify-content:space-between; gap:10px;">
-          <span class="card-item-title">${goal.name}</span>
-          <span class="text-teal">$${goal.saved.toFixed(0)} / $${goal.target.toFixed(0)}</span>
-        </div>
-        <div class="progress-bar-container"><div class="progress-bar" style="width:${percent}%; background: var(--gradient-teal-blue);"></div></div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-          <span class="card-item-subtitle">${percent}% completed</span>
-          <button class="btn btn-secondary btn-sm" onclick="addGoalSavings(${goal.id})">+ $50</button>
-        </div>
-      </div>
-    `;
-  });
-}
-
-function handleAddSavingsGoal(e) {
-  e.preventDefault();
-  const name = document.getElementById('goal-name').value.trim();
-  const target = parseFloat(document.getElementById('goal-target').value);
-  if (!name || isNaN(target) || target <= 0) return;
-
-  appState.savingsGoals.push({ id: Date.now(), name, target, saved: 0 });
-  updateUserDataState();
-  renderSavingsGoals();
-  document.getElementById('savings-goal-form').reset();
-  addPoints(8);
-}
-
-window.addGoalSavings = function(id) {
-  const goal = appState.savingsGoals.find(item => item.id === id);
-  if (!goal) return;
-  goal.saved = Math.min(goal.target, goal.saved + 50);
-  updateUserDataState();
-  renderSavingsGoals();
-  addPoints(4);
-};
-
-function renderLiteracyModules() {
-  const container = document.getElementById('literacy-modules');
-  if (!container) return;
-
-  container.innerHTML = '';
-  LITERACY_MODULES.forEach(module => {
-    const completed = appState.literacyProgress.includes(module.id);
-    container.innerHTML += `
-      <div class="card-item">
-        <div>
-          <div class="card-item-title">${module.title}</div>
-          <div class="card-item-subtitle">${module.summary}</div>
-        </div>
-        <button class="btn btn-sm ${completed ? '' : 'btn-secondary'}" onclick="toggleLiteracyModule('${module.id}')">
-          ${completed ? 'Completed' : 'Mark Complete'}
-        </button>
-      </div>
-    `;
-  });
-}
-
-window.toggleLiteracyModule = function(id) {
-  if (appState.literacyProgress.includes(id)) {
-    appState.literacyProgress = appState.literacyProgress.filter(item => item !== id);
-  } else {
-    appState.literacyProgress.push(id);
-    addPoints(10);
-  }
-  updateUserDataState();
-  renderLiteracyModules();
+  const mod = modules[moduleKey];
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <h4 style="font-size:15px; margin-bottom:8px; color: var(--accent-pink);">${mod.title}</h4>
+    <p style="font-size:13px; line-height:1.6; color:var(--text-main);">${mod.body}</p>
+    <div style="margin-top: 12px; font-size:12px; color:var(--text-muted);">Action Prompt: Write one habit you can apply this week from this module.</div>
+  `;
+  addPoints(6);
 };
 
 function generateInvestmentGuidance() {
-  const profile = document.getElementById('risk-profile').value;
-  const output = document.getElementById('investment-guide-output');
+  const horizon = document.getElementById('invest-horizon').value;
+  const risk = document.getElementById('invest-risk').value;
+  const out = document.getElementById('investment-output');
 
-  const guidanceMap = {
-    low: "Start with emergency fund, high-yield savings, short-term debt funds, and capital preservation.",
-    medium: "Mix index funds, recurring SIP-style investing, and medium-term goal buckets for balance.",
-    high: "Focus on long-term diversified equity exposure, disciplined contribution plans, and risk review."
-  };
+  let guidance = "Balance savings safety with long-term consistency.";
+  if (horizon === 'short' && risk === 'low') guidance = "Prioritize capital safety: emergency fund, high-yield savings, short-duration low-volatility instruments, and avoid locking money in risky assets.";
+  else if (horizon === 'medium' && risk === 'medium') guidance = "Blend safety and growth: keep a reserve fund, then diversify across broad market, fixed-income, and goal-linked savings buckets.";
+  else if (horizon === 'long' && risk === 'high') guidance = "For long horizons, volatility can be tolerated more. Focus on disciplined investing in diversified growth-oriented assets with regular contributions and yearly reviews.";
+  else if (risk === 'low') guidance = "Because your risk comfort is low, focus first on consistency, diversification, and capital preservation before chasing higher returns.";
 
-  output.classList.remove('hidden');
-  output.innerHTML = `
-    <div class="insight-box">
-      <h4>${profile.toUpperCase()} Risk Guidance</h4>
-      <p>${guidanceMap[profile]}</p>
-    </div>
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <h4 style="font-size:15px; margin-bottom:8px; color: var(--accent-teal);">Educational Guidance</h4>
+    <p style="font-size:13px; line-height:1.6; color:var(--text-main);">${guidance}</p>
+    <ul style="list-style: inside; display:flex; flex-direction:column; gap:6px; margin-top:10px; font-size:13px; color:var(--text-muted);">
+      <li>Keep emergency savings separate from investing capital.</li>
+      <li>Review goals, timeline, and risk once every quarter.</li>
+      <li>This module is educational, not financial advice.</li>
+    </ul>
   `;
-  addPoints(8);
-}
-
-function renderFundingList(list) {
-  const container = document.getElementById('funding-list');
-  if (!container) return;
-  container.innerHTML = '';
-
-  list.forEach(item => {
-    container.innerHTML += `
-      <div class="card-item">
-        <div>
-          <div class="card-item-title">${item.name}</div>
-          <div class="card-item-subtitle">${item.type} • ${item.stage}</div>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:5px;">${item.benefit}</div>
-        </div>
-        <button class="btn btn-secondary btn-sm" onclick="alert('Funding application checklist opened (Simulated)')">Open</button>
-      </div>
-    `;
-  });
-}
-
-function handleFundingSearch() {
-  const value = document.getElementById('funding-search').value.toLowerCase().trim();
-  const filtered = FUNDING_OPPORTUNITIES.filter(item =>
-    item.name.toLowerCase().includes(value) ||
-    item.type.toLowerCase().includes(value) ||
-    item.stage.toLowerCase().includes(value) ||
-    item.benefit.toLowerCase().includes(value)
-  );
-  renderFundingList(filtered);
-}
-
-function renderStartupResources() {
-  const container = document.getElementById('startup-resources-list');
-  if (!container) return;
-  container.innerHTML = '';
-
-  STARTUP_RESOURCES.forEach(resource => {
-    container.innerHTML += `
-      <div class="card-item">
-        <div>
-          <div class="card-item-title">${resource.title}</div>
-          <div class="card-item-subtitle">${resource.description}</div>
-        </div>
-        <button class="btn btn-secondary btn-sm" onclick="alert('Resource opened (Simulated)')">Use</button>
-      </div>
-    `;
-  });
-}
-
-function handleMentorMatch() {
-  const goal = document.getElementById('mentor-goal').value.trim().toLowerCase();
-  const output = document.getElementById('mentor-match-output');
-  if (!goal) {
-    alert("Please enter your goal.");
-    return;
-  }
-
-  let mentorKey = 'sophia';
-  if (goal.includes('fund') || goal.includes('pitch') || goal.includes('invest')) mentorKey = 'elara';
-  if (goal.includes('budget') || goal.includes('saving') || goal.includes('finance')) mentorKey = 'aria';
-
-  const mentor = MENTORS[mentorKey];
-  output.classList.remove('hidden');
-  output.innerHTML = `
-    <div class="insight-box">
-      <h4>Best Match: ${mentor.name}</h4>
-      <p>${mentor.role}</p>
-      <ul>
-        <li>Recommended because your goal aligns with ${goal}.</li>
-        <li>Next step: switch to ${mentor.name} and ask for a 30-day action plan.</li>
-      </ul>
-    </div>
-  `;
-
-  document.getElementById('mentor-select').value = mentorKey;
-  changeMentorPersona();
   addPoints(10);
-}
-
-function renderGoalTracker() {
-  const container = document.getElementById('goal-tracker-list');
-  if (!container) return;
-
-  if (!appState.personalGoals.length) {
-    container.innerHTML = `<div class="empty-state">No goals tracked yet. Add a milestone to stay accountable.</div>`;
-    return;
-  }
-
-  container.innerHTML = '';
-  appState.personalGoals.forEach(goal => {
-    container.innerHTML += `
-      <div class="card-item">
-        <div>
-          <div class="card-item-title">${goal.text}</div>
-          <div class="card-item-subtitle">Due: ${goal.date}</div>
-        </div>
-        <div style="display:flex; gap:8px;">
-          <button class="btn btn-sm ${goal.completed ? '' : 'btn-secondary'}" onclick="toggleTrackedGoal(${goal.id})">${goal.completed ? 'Done' : 'Mark Done'}</button>
-          <button class="btn btn-secondary btn-sm" onclick="deleteTrackedGoal(${goal.id})"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      </div>
-    `;
-  });
-}
-
-function handleAddTrackedGoal(e) {
-  e.preventDefault();
-  const text = document.getElementById('goal-tracker-input').value.trim();
-  const date = document.getElementById('goal-tracker-date').value;
-  if (!text || !date) return;
-
-  appState.personalGoals.unshift({ id: Date.now(), text, date, completed: false });
-  updateUserDataState();
-  renderGoalTracker();
-  document.getElementById('goal-tracker-form').reset();
-  addPoints(6);
-}
-
-window.toggleTrackedGoal = function(id) {
-  const goal = appState.personalGoals.find(item => item.id === id);
-  if (!goal) return;
-  goal.completed = !goal.completed;
-  if (goal.completed) addPoints(12);
-  updateUserDataState();
-  renderGoalTracker();
-};
-
-window.deleteTrackedGoal = function(id) {
-  appState.personalGoals = appState.personalGoals.filter(item => item.id !== id);
-  updateUserDataState();
-  renderGoalTracker();
-};
-
-function setupLanguageControls() {
-  const languageSelect = document.getElementById('language-select');
-  if (!languageSelect) return;
-  languageSelect.value = appState.language;
-  languageSelect.addEventListener('change', (e) => {
-    appState.language = e.target.value;
-    localStorage.setItem('elevateher_language', appState.language);
-    applyLanguage();
-  });
-  applyLanguage();
-}
-
-function applyLanguage() {
-  const translation = TRANSLATIONS[appState.language];
-  updateAuthModeUI();
-
-  const languageIndicator = document.getElementById('language-indicator');
-  if (languageIndicator) languageIndicator.innerHTML = `<i class="fa-solid fa-language"></i> ${translation.languageLabel}`;
-
-  const voiceIndicator = document.getElementById('voice-support-indicator');
-  if (voiceIndicator && !voiceIndicator.dataset.manual) {
-    voiceIndicator.innerHTML = `<i class="fa-solid fa-microphone-lines"></i> ${translation.voiceReady}`;
-  }
-
-  const greeting = document.querySelector('#floating-messages .chat-bubble.bot');
-  if (greeting && greeting.dataset.staticGreeting !== 'false') {
-    greeting.innerText = translation.assistantGreeting;
-  }
-
-  if (appState.currentUser) {
-    const user = appState.users[appState.currentUser];
-    document.getElementById('welcome-title').innerText = `${translation.welcomePrefix}, ${user.name.split(' ')[0]}`;
-  }
-}
-
-let speechRecognition = null;
-
-function setupVoiceAssistant() {
-  const VoiceAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const indicator = document.getElementById('voice-support-indicator');
-
-  if (!VoiceAPI) {
-    if (indicator) {
-      indicator.dataset.manual = 'true';
-      indicator.innerHTML = `<i class="fa-solid fa-microphone-slash"></i> ${TRANSLATIONS[appState.language].voiceUnavailable}`;
-    }
-    return;
-  }
-
-  speechRecognition = new VoiceAPI();
-  speechRecognition.lang = appState.language === 'hi' ? 'hi-IN' : 'en-US';
-  speechRecognition.interimResults = false;
-  speechRecognition.maxAlternatives = 1;
-
-  speechRecognition.onresult = event => {
-    const transcript = event.results[0][0].transcript;
-    const input = document.getElementById('floating-input');
-    if (input) input.value = transcript;
-  };
-
-  speechRecognition.onerror = () => {
-    if (indicator) {
-      indicator.dataset.manual = 'true';
-      indicator.innerHTML = `<i class="fa-solid fa-microphone-slash"></i> ${TRANSLATIONS[appState.language].voiceUnavailable}`;
-    }
-  };
-}
-
-function triggerVoiceInput() {
-  if (!speechRecognition) {
-    alert("Voice recognition is not supported in this browser.");
-    return;
-  }
-  speechRecognition.lang = appState.language === 'hi' ? 'hi-IN' : 'en-US';
-  speechRecognition.start();
 }
 
 
@@ -1699,6 +1376,36 @@ function simulateGrowthMetrics() {
   `;
 
   addPoints(10);
+}
+
+function renderFundingSources(list) {
+  const container = document.getElementById('funding-list');
+  if (!container) return;
+
+  container.innerHTML = '';
+  list.forEach(item => {
+    container.innerHTML += `
+      <div class="card-item">
+        <div>
+          <div class="card-item-title">${item.name}</div>
+          <div class="card-item-subtitle">${item.stage} • ${item.region} • ${item.sector}</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:5px;">${item.support}</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="alert('Funding program bookmarked!')">Save</button>
+      </div>
+    `;
+  });
+}
+
+function handleFundingSearch() {
+  const query = document.getElementById('funding-search').value.toLowerCase().trim();
+  const filtered = FUNDING_SOURCES.filter(item =>
+    item.name.toLowerCase().includes(query) ||
+    item.stage.toLowerCase().includes(query) ||
+    item.region.toLowerCase().includes(query) ||
+    item.sector.toLowerCase().includes(query)
+  );
+  renderFundingSources(filtered);
 }
 
 
@@ -1845,6 +1552,131 @@ function handleAddForumPost(e) {
   addPoints(15);
 }
 
+function matchMentor() {
+  const goal = document.getElementById('mentor-match-goal').value;
+  const out = document.getElementById('mentor-match-output');
+  const mapping = {
+    career: [
+      { name: "Sophia", fit: "Best for product, engineering, execution strategy, and career navigation." },
+      { name: "Aria", fit: "Useful as accountability support for career budgeting and transitions." }
+    ],
+    startup: [
+      { name: "Elara", fit: "Strong match for pitch decks, investor readiness, and early traction plans." },
+      { name: "Sophia", fit: "Helpful for execution roadmap, product prioritization, and MVP structure." }
+    ],
+    finance: [
+      { name: "Aria", fit: "Best match for savings habits, debt strategy, and practical money systems." },
+      { name: "Elara", fit: "Helpful when finance intersects with startup fundraising strategy." }
+    ],
+    learning: [
+      { name: "Sophia", fit: "Useful for structured learning plans and practical project milestones." },
+      { name: "Aria", fit: "Supports discipline, habit systems, and sustainable long-term routines." }
+    ]
+  };
+
+  out.innerHTML = '';
+  mapping[goal].forEach(item => {
+    out.innerHTML += `
+      <div class="card-item" style="flex-direction:column; align-items:stretch; gap:8px;">
+        <div class="card-item-title">${item.name}</div>
+        <div class="card-item-subtitle">${item.fit}</div>
+      </div>
+    `;
+  });
+  addPoints(9);
+}
+
+function renderGoalList() {
+  const container = document.getElementById('goal-list');
+  if (!container) return;
+
+  if (appState.goals.length === 0) {
+    container.innerHTML = `<div style="font-size:12px; color:var(--text-muted); text-align:center;">No goals added yet. Add your first milestone.</div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  appState.goals.forEach(goal => {
+    container.innerHTML += `
+      <div class="card-item">
+        <div>
+          <div class="card-item-title" style="text-decoration:${goal.completed ? 'line-through' : 'none'};">${goal.title}</div>
+          <div class="card-item-subtitle">${goal.hub.toUpperCase()} • ${goal.deadline}</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-sm" onclick="toggleGoal(${goal.id})">${goal.completed ? 'Reopen' : 'Done'}</button>
+          <button class="btn btn-secondary btn-sm" onclick="deleteGoal(${goal.id})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function handleAddGoal(e) {
+  e.preventDefault();
+  const title = document.getElementById('goal-title').value.trim();
+  const deadline = document.getElementById('goal-deadline').value.trim();
+  const hub = document.getElementById('goal-hub').value;
+  if (!title || !deadline) return;
+
+  appState.goals.unshift({
+    id: Date.now(),
+    title,
+    deadline,
+    hub,
+    completed: false
+  });
+
+  updateUserDataState();
+  renderGoalList();
+  document.getElementById('goal-form').reset();
+  addPoints(10);
+}
+
+window.toggleGoal = function(id) {
+  const goal = appState.goals.find(item => item.id === id);
+  if (!goal) return;
+  goal.completed = !goal.completed;
+  updateUserDataState();
+  renderGoalList();
+  if (goal.completed) addPoints(12);
+};
+
+window.deleteGoal = function(id) {
+  appState.goals = appState.goals.filter(goal => goal.id !== id);
+  updateUserDataState();
+  renderGoalList();
+};
+
+function renderSmartRecommendations() {
+  const container = document.getElementById('smart-recommendations-list');
+  if (!container) return;
+
+  const recommendations = [];
+  recommendations.push(appState.studyTasks.length === 0
+    ? { title: "Start a study habit", subtitle: "Add one study planner task to activate your Education Hub momentum." }
+    : { title: "Review your next lesson", subtitle: `You have ${appState.studyTasks.length} study task(s). Complete one today for consistency.` });
+
+  recommendations.push(appState.portfolioProjects.length === 0
+    ? { title: "Build your portfolio", subtitle: "Add one project in the Career Hub to make applications stronger." }
+    : { title: "Polish portfolio storytelling", subtitle: `You already have ${appState.portfolioProjects.length} project(s). Improve impact statements and links.` });
+
+  recommendations.push(appState.transactions.length === 0
+    ? { title: "Track one transaction", subtitle: "Log income or expense once to unlock finance visibility." }
+    : { title: "Review savings progress", subtitle: "Your finance data is active. Compare balance with your next goal milestone." });
+
+  recommendations.push(appState.goals.length === 0
+    ? { title: "Set one measurable goal", subtitle: "Create a 30-day milestone in Mentorship & Community." }
+    : { title: "Complete one goal this week", subtitle: `${appState.goals.filter(goal => goal.completed).length} goal(s) completed so far. Keep building momentum.` });
+
+  container.innerHTML = recommendations.map(item => `
+    <div class="card-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+      <div class="card-item-title">${item.title}</div>
+      <div class="card-item-subtitle">${item.subtitle}</div>
+    </div>
+  `).join('');
+}
+
 // ------ F. GLOBAL FLOATING AI ASSISTANT ------
 function sendFloatingMessage() {
   const inputEl = document.getElementById('floating-input');
@@ -1886,6 +1718,46 @@ function sendFloatingMessage() {
     container.scrollTop = container.scrollHeight;
     addPoints(5);
   }, 1000);
+}
+
+function analyzeGenericDocument() {
+  const type = document.getElementById('doc-type').value;
+  const text = document.getElementById('doc-input').value.trim();
+  const out = document.getElementById('doc-analysis-output');
+
+  if (!text) {
+    alert("Please paste a document first!");
+    return;
+  }
+
+  let score = 60;
+  if (text.length > 600) score += 10;
+  if (text.includes('\n')) score += 5;
+  if (text.toLowerCase().includes('impact') || text.toLowerCase().includes('goal') || text.toLowerCase().includes('strategy')) score += 10;
+  score = Math.min(score, 95);
+
+  const summaries = {
+    resume: "Focus on measurable achievements, strong action verbs, and clearer skill positioning.",
+    sop: "Strengthen motivation, story flow, and why-this-program alignment.",
+    "business-plan": "Clarify customer problem, market size, and execution plan with sharper structure."
+  };
+
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:12px;">
+      <div>
+        <h4 style="font-size:15px; color:var(--accent-pink); text-transform:capitalize;">${type.replace('-', ' ')} Review</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-top:5px;">${summaries[type]}</p>
+      </div>
+      <div class="btn btn-secondary btn-sm" style="pointer-events:none;">Score ${score}/100</div>
+    </div>
+    <ul style="list-style: inside; display:flex; flex-direction:column; gap:6px; font-size:13px;">
+      <li>Keep section headings clean and easy to scan.</li>
+      <li>Add 2-3 concrete outcomes or proof points.</li>
+      <li>Reduce vague phrasing and improve specificity.</li>
+    </ul>
+  `;
+  addPoints(12);
 }
 
 // ================= G. SOCIALIZE & CONNECT ENGINE =================
