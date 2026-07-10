@@ -4,8 +4,6 @@
 
 ElevateHer AI is an all‑in‑one platform that brings education, career guidance, financial planning, entrepreneurship tools, mentorship, and community features together under a unified, AI‑powered experience.
 
----
-
 ## Table of Contents
 
 - [Problem Statement](#problem-statement)
@@ -24,15 +22,10 @@ ElevateHer AI is an all‑in‑one platform that brings education, career guidan
 - [License](#license)
 - [Roadmap](#roadmap)
 - [FAQ](#faq)
-- [Contact & Support](#contact--support)
-
----
 
 ## Problem Statement
 
 Women often need to jump across multiple platforms for education, career development, financial planning, entrepreneurship, scholarships, and mentorship. This fragmented experience makes it hard to track progress, discover opportunities, and get personalized guidance. **ElevateHer AI** solves this by unifying all these services into a single, intelligent platform.
-
----
 
 ## Features
 
@@ -74,8 +67,6 @@ Women often need to jump across multiple platforms for education, career develop
 - Document Analyzer (resume, SOP, business plan)
 - AI Progress Tracking & Personalized Dashboard
 
----
-
 ## Tech Stack
 
 | Layer | Technologies |
@@ -89,13 +80,9 @@ Women often need to jump across multiple platforms for education, career develop
 | **Maps & APIs** | Google Maps API (optional), EmailJS / Nodemailer |
 | **Deployment** | Frontend – Vercel, Backend – Render / Railway |
 
----
-
 ## Live Demo & Video
 - **Live Deployment:** _[Insert URL here]_
 - **Demo Video:** _[Insert YouTube/Drive URL here]_
-
----
 
 ## Installation & Setup
 
@@ -125,16 +112,12 @@ npm run dev   # Starts Express server on http://localhost:5000
 | `FIREBASE_SERVICE_ACCOUNT` | Firebase service account JSON (base64‑encoded) |
 | `CLOUDINARY_URL` | Cloudinary upload credentials |
 
----
-
 ## Development Guide
 1. **Frontend** – All UI components live under `frontend/src/components`. Follow the **glassmorphic** design guidelines (cards, blur, vibrant gradients). Use Tailwind‑CSS utilities for styling; avoid custom CSS unless necessary.
 2. **Backend** – Routes are defined in `backend/routes/*.js`. Controllers reside in `backend/controllers`. Use JWT middleware from Firebase for auth protection.
 3. **AI Integration** – Wrapper functions in `backend/services/ai.js` handle calls to OpenAI/Gemini. Keep prompts modular and version‑controlled.
 4. **Testing** – Run `npm test` in both `frontend` and `backend`. Jest is configured for unit tests; Cypress for end‑to‑end flows.
 5. **Deployment** – Push frontend to Vercel (auto‑detects `frontend` folder). Deploy backend to Render/Railway using Dockerfile or Node buildpack.
-
----
 
 ## Contributing
 We welcome contributions! Please read our **CONTRIBUTING.md** for guidelines on:
@@ -143,12 +126,8 @@ We welcome contributions! Please read our **CONTRIBUTING.md** for guidelines on:
 - Opening issues and pull requests
 - Testing and documentation standards
 
----
-
 ## License
 This project is licensed under the **MIT License** – see the `LICENSE` file for details.
-
----
 
 ## Roadmap
 - **Q4 2026**: Public beta launch with core hubs fully functional.
@@ -156,8 +135,6 @@ This project is licensed under the **MIT License** – see the `LICENSE` file fo
 - **Q2 2027**: AI Salary Predictor & Career Success Score.
 - **Q3 2027**: Women Safety Resources integration and mental‑wellness check‑ins.
 - **Beyond**: Gamification, achievement badges, and community‑driven content marketplace.
-
----
 
 ## FAQ
 **Q: Do I need a paid OpenAI/Gemini account?**
@@ -168,14 +145,5 @@ A: Yes, you can swap authentication providers; replace the Firebase middleware w
 
 **Q: How is user data protected?**
 A: All personal data is stored encrypted in MongoDB Atlas, and communications use HTTPS/TLS. Follow the security checklist in `SECURITY.md`.
-
----
-
-## Contact & Support
-- **Team Email:** support@elevateher.ai
-- **Discord:** https://discord.gg/elevateher
-- **Issues:** Open a GitHub issue for bugs or feature requests.
-
----
 
 *ElevateHer AI – One platform, limitless possibilities.*
