@@ -1,4 +1,4 @@
-﻿# Contributing to ElevateHer AI
+# Contributing to ElevateHer AI
 
 Thank you for your interest in contributing to **ElevateHer AI**! We welcome contributions from everyone. 💜
 
@@ -8,31 +8,39 @@ Thank you for your interest in contributing to **ElevateHer AI**! We welcome con
 
 1. **Fork** the repository on GitHub.
 2. **Clone** your fork locally:
-   `ash
-   git clone https://github.com/your-username/STOCKHACK_v2v.git
-   cd STOCKHACK_v2v
-   `
+
+```bash
+git clone https://github.com/your-username/STOCKHACK_v2v.git
+cd STOCKHACK_v2v
+```
+
 3. **Create a new branch** for your feature or bug fix:
-   `ash
-   git checkout -b feature/your-feature-name
-   `
+
+```bash
+git checkout -b feature/your-feature-name
+```
 
 ---
 
 ## Development Setup
 
 1. Install dependencies:
-   `ash
-   npm install
-   `
+
+```bash
+npm install
+```
+
 2. Copy the environment variables:
-   `ash
-   cp .env.example .env
-   `
+
+```bash
+cp .env.example .env
+```
+
 3. Start the development server:
-   `ash
-   npm run dev
-   `
+
+```bash
+npm run dev
+```
 
 ---
 
@@ -49,10 +57,12 @@ Thank you for your interest in contributing to **ElevateHer AI**! We welcome con
 ## Submitting a Pull Request
 
 1. Push your branch to GitHub:
-   `ash
-   git push origin feature/your-feature-name
-   `
-2. Open a **Pull Request** against the main branch.
+
+```bash
+git push origin feature/your-feature-name
+```
+
+2. Open a **Pull Request** against the `main` branch.
 3. Fill out the PR template with:
    - What changes you made
    - Why you made them
