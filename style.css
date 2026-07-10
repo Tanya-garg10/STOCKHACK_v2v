@@ -205,8 +205,8 @@ body::after {
 }
 
 .floating-group input {
-  background: rgba(8, 5, 17, 0.5) !important;
-  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   padding: 16px;
   color: var(--text-main);
@@ -227,23 +227,36 @@ body::after {
   left: 12px;
   font-size: 11px;
   color: var(--accent-pink);
-  background: #110a22; /* Matches Card interior dark color */
+  background: rgba(17, 10, 34, 0.85); /* Semi-transparent dark background to overlap line cleanly */
   padding: 0 6px;
   font-weight: 600;
   letter-spacing: 0.5px;
+  border-radius: 4px;
 }
 
 /* Auth Screens */
 .auth-wrapper {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end; /* Shift card to the right on desktop */
   min-height: 100vh;
-  padding: 20px;
-  background: radial-gradient(circle at center, #0f0a21 0%, #040209 100%);
+  padding: 40px 12%; /* Create space for the card on the right */
+  background-image: linear-gradient(rgba(10, 5, 23, 0.35), rgba(10, 5, 23, 0.35)), url('girl_curly_hair.jpg');
+  background-size: cover;
+  background-position: 28% center; /* Shift the face of the illustration to the left so it is fully visible */
   position: relative;
   overflow: hidden;
+  transition: all 0.3s ease;
 }
+
+@media (max-width: 900px) {
+  .auth-wrapper {
+    justify-content: center; /* Center the card on mobile/tablet */
+    padding: 20px;
+    background-position: center center; /* Re-center background portrait */
+  }
+}
+
 
 /* Moving ambient blobs in background */
 .auth-bg-blob {
@@ -312,11 +325,11 @@ body::after {
 .auth-card {
   width: 100%;
   max-width: 450px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.05); /* Highly transparent light background to reveal full art */
+  border: 1px solid rgba(255, 255, 255, 0.15); /* Light glass border */
   border-radius: var(--border-radius);
   box-shadow: var(--glass-shadow);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px); /* Elevated frosted glass blur */
   padding: 40px;
   position: relative;
   overflow: hidden;
@@ -414,19 +427,23 @@ body::after {
 /* App Dashboard Shell Layout */
 .app-container {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
-/* Sidebar Styling */
+/* Top Navigation Bar Styling (formerly Sidebar) */
 .sidebar {
-  width: 280px;
+  width: 100%;
+  height: 80px;
   background: var(--glass-bg);
-  border-right: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
+  border-right: none;
   backdrop-filter: blur(20px);
-  padding: 30px 20px;
+  padding: 0 40px;
   display: flex;
-  flex-direction: column;
-  height: 100vh;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   position: fixed;
   left: 0;
   top: 0;
@@ -437,7 +454,7 @@ body::after {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 40px;
+  margin-bottom: 0;
 }
 
 .brand-icon {
@@ -462,55 +479,98 @@ body::after {
 .sidebar-menu {
   list-style: none;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  gap: 10px;
   flex-grow: 1;
+  justify-content: center;
+  margin: 0 30px;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 14px 18px;
+  gap: 8px;
+  padding: 10px 16px;
   border-radius: 12px;
   color: var(--text-muted);
   cursor: pointer;
   transition: all var(--transition-speed) ease;
   font-family: var(--font-family-title);
   font-weight: 500;
-  font-size: 15px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .menu-item i {
-  font-size: 18px;
-  width: 24px;
+  font-size: 16px;
+  width: auto;
 }
 
 .menu-item:hover, .menu-item.active {
   color: var(--text-main);
-  background: rgba(236, 64, 122, 0.1);
-  border-left: 3px solid var(--accent-pink);
+  background: rgba(236, 64, 122, 0.08);
+  border-bottom: 3px solid var(--accent-pink);
+  border-left: none;
+  border-radius: 12px 12px 0 0;
 }
 
 .menu-item.active i {
   color: var(--accent-pink);
 }
 
-.sidebar-footer {
-  border-top: 1px solid var(--glass-border);
-  padding-top: 20px;
-}
-
-.user-profile-widget {
+.navbar-right {
   display: flex;
   align-items: center;
+  gap: 20px;
+  z-index: 105;
+}
+
+.profile-dropdown-container {
+  position: relative;
+}
+
+.profile-dropdown-menu {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  width: 220px;
+  background: rgba(18, 12, 36, 0.96);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--glass-shadow), 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  margin-bottom: 20px;
+  animation: scaleUp 0.2s ease-out;
+  z-index: 110;
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--glass-border);
+  margin: 4px 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-main);
+  font-weight: 500;
 }
 
 .user-avatar {
-  width: 45px;
-  height: 45px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--gradient-brand);
   border: 2px solid var(--accent-pink);
@@ -519,7 +579,7 @@ body::after {
   justify-content: center;
   font-family: var(--font-family-title);
   font-weight: 700;
-  font-size: 18px;
+  font-size: 16px;
   color: white;
 }
 
@@ -530,7 +590,7 @@ body::after {
 
 .user-meta-name {
   font-family: var(--font-family-title);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -538,17 +598,18 @@ body::after {
 }
 
 .user-meta-level {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--accent-pink);
   font-weight: 500;
 }
 
 /* Main Content Area */
 .main-content {
-  margin-left: 280px;
+  margin-left: 0;
+  margin-top: 80px;
   flex-grow: 1;
   padding: 40px;
-  min-height: 100vh;
+  min-height: calc(100vh - 80px);
   background: radial-gradient(circle at 80% 10%, #150f2b 0%, var(--bg-primary) 70%);
 }
 
@@ -1122,16 +1183,32 @@ body::after {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 960px) {
   .sidebar {
-    width: 80px;
-    padding: 20px 10px;
+    padding: 0 15px;
+    height: 70px;
   }
-  .brand-name, .user-meta, .menu-item span {
+  .sidebar-menu {
+    margin: 0 10px;
+    gap: 5px;
+    overflow-x: auto;
+    justify-content: flex-start;
+    scrollbar-width: none;
+  }
+  .sidebar-menu::-webkit-scrollbar {
+    display: none;
+  }
+  .menu-item {
+    padding: 8px 12px;
+  }
+  .menu-item span {
+    display: none; /* Show only icons on mobile/tablet */
+  }
+  .brand-name, .user-meta {
     display: none;
   }
   .main-content {
-    margin-left: 80px;
+    margin-top: 70px;
     padding: 20px;
   }
   .ats-container {

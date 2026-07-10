@@ -205,11 +205,13 @@ function startSession(email, user) {
   appState.forumPosts = user.forumPosts || [];
 
   // Update UI Elements
-  document.getElementById('profile-name').innerText = user.name;
-  document.getElementById('profile-avatar').innerText = user.name.charAt(0).toUpperCase();
-  document.getElementById('profile-level').innerText = user.level || "Level 1: Explorer";
+  const initials = user.name.charAt(0).toUpperCase();
+  document.getElementById('profile-avatar').innerText = initials;
+  document.getElementById('dropdown-avatar').innerText = initials;
+  document.getElementById('dropdown-name').innerText = user.name;
+  document.getElementById('dropdown-level').innerText = user.level || "Level 1: Explorer";
+  document.getElementById('dropdown-points').innerText = `${user.points || 120} Points`;
   document.getElementById('welcome-title').innerText = `Hello, ${user.name.split(' ')[0]}`;
-  document.getElementById('user-points').innerText = `${user.points || 120} Points`;
 
   // Render lists
   renderCertifications();
@@ -245,8 +247,8 @@ function addPoints(amount) {
     else if (user.points >= 300) user.level = "Level 3: Trailblazer";
     else if (user.points >= 200) user.level = "Level 2: Rising Leader";
     
-    document.getElementById('profile-level').innerText = user.level;
-    document.getElementById('user-points').innerText = `${user.points} Points`;
+    document.getElementById('dropdown-level').innerText = user.level;
+    document.getElementById('dropdown-points').innerText = `${user.points} Points`;
     saveUsersToLocalStorage();
   }
 }
@@ -338,6 +340,21 @@ function setupHubEventListeners() {
   sendBtn.addEventListener('click', sendFloatingMessage);
   input.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendFloatingMessage();
+  });
+
+  // Profile Dropdown Toggle Click Listeners
+  const profileAvatar = document.getElementById('profile-avatar');
+  const profileDropdown = document.getElementById('profile-dropdown');
+  
+  profileAvatar.addEventListener('click', (e) => {
+    e.stopPropagation();
+    profileDropdown.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!profileDropdown.contains(e.target) && e.target !== profileAvatar) {
+      profileDropdown.classList.add('hidden');
+    }
   });
 }
 

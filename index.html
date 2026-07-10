@@ -122,17 +122,35 @@
         </li>
       </ul>
 
-      <div class="sidebar-footer">
-        <div class="user-profile-widget">
+      <div class="navbar-right">
+        <!-- Separate Notification Bell logo -->
+        <div class="notif-bell" id="navbar-notif">
+          <i class="fa-regular fa-bell"></i>
+          <div class="notif-dot"></div>
+        </div>
+
+        <!-- Interactive Profile Dropdown -->
+        <div class="profile-dropdown-container">
           <div id="profile-avatar" class="user-avatar">U</div>
-          <div class="user-meta">
-            <div id="profile-name" class="user-meta-name">Guest User</div>
-            <div id="profile-level" class="user-meta-level">Level 1: Explorer</div>
+          
+          <div class="profile-dropdown-menu hidden" id="profile-dropdown">
+            <div class="dropdown-header">
+              <div id="dropdown-avatar" class="user-avatar">U</div>
+              <div class="user-meta" style="flex-grow:0; text-align:left;">
+                <div id="dropdown-name" class="user-meta-name">Guest User</div>
+                <div id="dropdown-level" class="user-meta-level">Level 1: Explorer</div>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item">
+              <i class="fa-solid fa-gem text-pink"></i> <span id="dropdown-points">120 Points</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <button id="logout-btn" class="btn btn-secondary btn-sm" style="width: 100%; border-radius: 8px;">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Log Out</span>
+            </button>
           </div>
         </div>
-        <button id="logout-btn" class="btn btn-secondary btn-sm" style="width: 100%;">
-          <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Log Out</span>
-        </button>
       </div>
     </aside>
 
@@ -144,15 +162,6 @@
         <div class="header-welcome">
           <h2 id="welcome-title">Hello, Explorer</h2>
           <p id="today-date">Friday, July 10, 2026</p>
-        </div>
-        <div class="header-controls">
-          <div class="notif-bell">
-            <i class="fa-regular fa-bell"></i>
-            <div class="notif-dot"></div>
-          </div>
-          <div class="btn btn-sm text-gradient btn-secondary" style="border-color: var(--accent-pink);">
-            <i class="fa-solid fa-gem text-pink"></i> <span id="user-points">120 Points</span>
-          </div>
         </div>
       </header>
 
