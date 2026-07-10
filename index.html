@@ -25,6 +25,9 @@
         <h1><span class="text-gradient">ElevateHer AI</span></h1>
         <p>Your AI-Powered Journey to Empowerment Starts Here</p>
       </div>
+      <div id="auth-status" class="auth-status-banner">
+        Demo auth active. Firebase config add karte hi secure email/password aur Google sign-in enable ho jayega.
+      </div>
       
       <form id="login-form">
         <div class="form-group floating-group">
@@ -57,6 +60,9 @@
       <div class="auth-logo">
         <h1><span class="text-gradient">Create Account</span></h1>
         <p>Join a community of women achieving independence</p>
+      </div>
+      <div class="auth-status-banner">
+        Signup abhi demo mode me bhi kaam karta hai. Firebase config ke baad real authentication use hoga.
       </div>
       
       <form id="signup-form">
@@ -127,6 +133,11 @@
       </ul>
 
       <div class="navbar-right">
+        <span id="auth-mode-badge" class="header-chip">Demo Auth</span>
+        <select id="language-select" class="header-select" aria-label="Language selector">
+          <option value="en">English</option>
+          <option value="hi">Hindi</option>
+        </select>
         <!-- Separate Notification Bell logo -->
         <div class="notif-bell" id="navbar-notif">
           <i class="fa-regular fa-bell"></i>
@@ -166,6 +177,10 @@
         <div class="header-welcome">
           <h2 id="welcome-title">Hello, Explorer</h2>
           <p id="today-date">Friday, July 10, 2026</p>
+        </div>
+        <div class="header-controls">
+          <div class="header-chip" id="voice-support-indicator"><i class="fa-solid fa-microphone-lines"></i> Voice Ready</div>
+          <div class="header-chip" id="language-indicator"><i class="fa-solid fa-language"></i> English</div>
         </div>
       </header>
 
@@ -777,22 +792,12 @@
             <div class="glass-card-header">
               <h3><i class="fa-solid fa-bullseye"></i> Savings Goals</h3>
             </div>
-            <div class="card-list">
-              <div class="card-item" style="flex-direction: column; align-items: stretch;">
-                <div style="display: flex; justify-content: space-between;">
-                  <span class="card-item-title">Emergency Fund</span>
-                  <span class="text-teal font-semibold">$500 / $1000</span>
-                </div>
-                <div class="progress-bar-container"><div class="progress-bar" style="width: 50%; background: var(--gradient-teal-blue);"></div></div>
-              </div>
-              <div class="card-item" style="flex-direction: column; align-items: stretch;">
-                <div style="display: flex; justify-content: space-between;">
-                  <span class="card-item-title">MacBook for Coding</span>
-                  <span class="text-pink font-semibold">$350 / $1000</span>
-                </div>
-                <div class="progress-bar-container"><div class="progress-bar" style="width: 35%;"></div></div>
-              </div>
-            </div>
+            <form id="savings-goal-form" style="display:grid; grid-template-columns: 1.2fr 0.8fr auto; gap: 10px; margin-bottom: 16px;">
+              <input type="text" id="goal-name" class="form-control" placeholder="Goal name" required>
+              <input type="number" id="goal-target" class="form-control" placeholder="Target $" step="0.01" required>
+              <button type="submit" class="btn btn-sm"><i class="fa-solid fa-plus"></i></button>
+            </form>
+            <div id="savings-goals-list" class="card-list"></div>
 
             <!-- Loan Eligibility Checker -->
             <div class="glass-card-header" style="margin-top: 30px;">
@@ -1227,11 +1232,15 @@
     
     <div class="chat-input-area">
       <input type="text" id="floating-input" class="form-control" placeholder="Ask anything...">
+      <button id="voice-floating-btn" class="btn btn-secondary" title="Voice input"><i class="fa-solid fa-microphone"></i></button>
       <button id="send-floating-btn" class="btn"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
   </div>
 
   <!-- Application Script -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

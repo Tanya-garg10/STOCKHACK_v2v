@@ -3,11 +3,16 @@
 // ================= STATE MANAGEMENT =================
 let appState = {
   currentUser: null,
+  authMode: 'demo',
+  language: localStorage.getItem('elevateher_language') || 'en',
   users: JSON.parse(localStorage.getItem('elevateher_users')) || {},
   activeTab: 'overview-panel',
   certifications: [],
   studyTasks: [],
   transactions: [],
+  savingsGoals: [],
+  personalGoals: [],
+  literacyProgress: [],
   forumPosts: [],
   portfolioProjects: [],
   goals: [],
@@ -57,8 +62,11 @@ const FUNDING_SOURCES = [
 document.addEventListener('DOMContentLoaded', () => {
   setupAuthEventListeners();
   setupNavigation();
-  restoreSession();
   setupHubEventListeners();
+  setupLanguageControls();
+  setupVoiceAssistant();
+  initializeFirebaseAuth();
+  restoreSession();
   updateDate();
 });
 
@@ -142,7 +150,7 @@ function setupAuthEventListeners() {
     animateCardSwitch('signup-card', 'login-card');
   });
 
-  signupForm.addEventListener('submit', (e) => {
+  signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('signup-name').value;
     const email = document.getElementById('signup-email').value;
@@ -155,22 +163,33 @@ function setupAuthEventListeners() {
 
     appState.users[email] = createDefaultUser(name, password);
 
-    saveUsersToLocalStorage();
-    alert("Account created successfully! Please log in.");
-    signupForm.reset();
-    animateCardSwitch('signup-card', 'login-card');
+      signupForm.reset();
+      animateCardSwitch('signup-card', 'login-card');
+    } catch (error) {
+      showFriendlyError(error, "Sign up failed.");
+    }
   });
 
-  loginForm.addEventListener('submit', (e) => {
+  loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
-    const user = appState.users[email];
-    if (user && user.password === password) {
-      startSession(email, user);
-    } else {
-      alert("Invalid email or password!");
+    try {
+      if (hasFirebaseAuth()) {
+        const credential = await firebaseAuth.signInWithEmailAndPassword(email, password);
+        const userProfile = ensureUserProfile(email, credential.user.displayName || email.split('@')[0]);
+        startSession(email, userProfile, true);
+      } else {
+        const user = appState.users[email];
+        if (user && user.password === password) {
+          startSession(email, user);
+        } else {
+          alert("Invalid email or password!");
+        }
+      }
+    } catch (error) {
+      showFriendlyError(error, "Login failed.");
     }
   });
 
@@ -181,18 +200,33 @@ function setupAuthEventListeners() {
       appState.users[email] = createDefaultUser("Google Member", "google_login_mock");
       saveUsersToLocalStorage();
     }
-    startSession(email, appState.users[email]);
   });
 
-  logoutBtn.addEventListener('click', () => {
+  logoutBtn.addEventListener('click', async () => {
     appState.currentUser = null;
     localStorage.removeItem('elevateher_active_session');
+
+    try {
+      if (hasFirebaseAuth()) {
+        await firebaseAuth.signOut();
+      }
+    } catch (error) {
+      console.error('Firebase signout failed', error);
+    }
+
     document.getElementById('app-view').classList.add('hidden');
     document.getElementById('auth-view').classList.remove('hidden');
   });
 }
 
 function restoreSession() {
+  if (hasFirebaseAuth() && firebaseAuth.currentUser) {
+    const firebaseUser = firebaseAuth.currentUser;
+    const localUser = ensureUserProfile(firebaseUser.email, firebaseUser.displayName || firebaseUser.email.split('@')[0]);
+    startSession(firebaseUser.email, localUser, true);
+    return;
+  }
+
   const activeSessionEmail = localStorage.getItem('elevateher_active_session');
   if (activeSessionEmail && appState.users[activeSessionEmail]) {
     startSession(activeSessionEmail, appState.users[activeSessionEmail]);
@@ -202,7 +236,11 @@ function restoreSession() {
 function startSession(email, user) {
   ensureUserCollections(user);
   appState.currentUser = email;
-  localStorage.setItem('elevateher_active_session', email);
+  if (!isRemoteAuth || !hasFirebaseAuth()) {
+    localStorage.setItem('elevateher_active_session', email);
+  } else {
+    localStorage.setItem('elevateher_active_session', email);
+  }
 
   // Sync user properties to local state
   appState.certifications = user.certifications || [];
@@ -219,7 +257,7 @@ function startSession(email, user) {
   document.getElementById('dropdown-name').innerText = user.name;
   document.getElementById('dropdown-level').innerText = user.level || "Level 1: Explorer";
   document.getElementById('dropdown-points').innerText = `${user.points || 0} Points`;
-  document.getElementById('welcome-title').innerText = `Hello, ${user.name.split(' ')[0]}`;
+  document.getElementById('welcome-title').innerText = `${TRANSLATIONS[appState.language].welcomePrefix}, ${user.name.split(' ')[0]}`;
 
   // Recalculate Overview metrics
   const activeRoadmaps = appState.certifications.filter(c => c.status === "In Progress").length;
@@ -238,6 +276,7 @@ function startSession(email, user) {
   renderCertifications();
   renderStudyTasks();
   renderTransactions();
+  renderSavingsGoals();
   renderForumPosts();
   renderScholarships(SCHOLARSHIPS);
   renderSchemes(SCHEMES);
@@ -359,6 +398,7 @@ function setupHubEventListeners() {
 
   // 3. Finance Hub Events
   document.getElementById('transaction-form').addEventListener('submit', handleAddTransaction);
+  document.getElementById('savings-goal-form').addEventListener('submit', handleAddSavingsGoal);
   document.getElementById('check-loan-btn').addEventListener('click', checkLoanEligibility);
   document.getElementById('search-scheme-btn').addEventListener('click', handleSchemeSearch);
   document.getElementById('generate-investment-btn').addEventListener('click', generateInvestmentGuidance);
@@ -387,11 +427,13 @@ function setupHubEventListeners() {
   const panel = document.getElementById('floating-chat-panel');
   const closeBtn = document.getElementById('close-floating-chat');
   const sendBtn = document.getElementById('send-floating-btn');
+  const voiceBtn = document.getElementById('voice-floating-btn');
   const input = document.getElementById('floating-input');
 
   trigger.addEventListener('click', () => panel.classList.toggle('hidden'));
   closeBtn.addEventListener('click', () => panel.classList.add('hidden'));
   sendBtn.addEventListener('click', sendFloatingMessage);
+  if (voiceBtn) voiceBtn.addEventListener('click', triggerVoiceInput);
   input.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendFloatingMessage();
   });
@@ -693,6 +735,7 @@ function askLearningAssistant() {
 // ------ B. CAREER ENGINE ------
 function analyzeResumeATS() {
   const text = document.getElementById('resume-text').value.trim();
+  const targetJob = document.getElementById('resume-target-job').value.trim().toLowerCase();
   if (!text) {
     alert("Please paste your resume content first!");
     return;
@@ -714,6 +757,15 @@ function analyzeResumeATS() {
     if (text.length > 500) score += 15;
     if (text.toLowerCase().includes('responsibilities') || text.toLowerCase().includes('experience')) score += 10;
     if (text.toLowerCase().includes('achieved') || text.toLowerCase().includes('managed')) score += 5;
+
+    if (targetJob) {
+      const targetKeywords = targetJob.split(/[\s,/-]+/).filter(word => word.length > 2);
+      const matches = targetKeywords.filter(word => text.toLowerCase().includes(word)).length;
+      score += Math.min(matches * 4, 16);
+      if (matches < Math.min(3, targetKeywords.length)) {
+        recommendations.push(`Add more target-role keywords from "${targetJob}" to improve ATS alignment.`);
+      }
+    }
 
     // Check formatting
     if (text.includes('-') || text.includes('*')) {
@@ -1287,7 +1339,7 @@ function generateMarketingAssets() {
     list.innerHTML += `<li>"${sl}"</li>`;
   });
 
-  document.getElementById('marketing-archetype').innerText = `Your brand aligns with "The Caregiver" archetype: comforting, protective, nurturing, and built on trust and environmental care. Color scheme recommendation: Sage green, soft blush pink, and warm gold accents.`;
+  document.getElementById('marketing-archetype').innerText = `Your brand aligns with "The Caregiver" archetype: comforting, protective, nurturing, and built on trust and environmental care. Color scheme recommendation: Sage green, soft blush pink, and warm gold accents. Logo suggestion: combine a rising spark motif with a clean serif wordmark.`;
 
   addPoints(15);
 }
@@ -1304,16 +1356,18 @@ function simulateGrowthMetrics() {
 
   out.classList.remove('hidden');
   
-  // Simple growth projection model
-  const cac = 15; // Cost to Acquire Customer
+  // Enhanced growth projection model
+  const leadVolume = Math.max(100, Math.round((budget * 12) / 4));
+  const customers = Math.round(leadVolume * (conversion / 100));
+  const cac = customers > 0 ? ((budget * 12) / customers).toFixed(2) : '0.00';
   const arpu = 45; // Average Revenue Per User
-  const customers = Math.round((budget / cac) * 12);
   const revenue = customers * arpu;
   const net = revenue - (budget * 12);
 
   out.innerHTML = `
     <h5 style="color:var(--accent-teal); font-size:13px; margin-bottom:8px;">Growth Projections (Year 1 Outline)</h5>
     <ul style="list-style:none; display:flex; flex-direction:column; gap:6px;">
+      <li>Lead Volume Estimate: <strong>${leadVolume}</strong></li>
       <li>Estimated CAC: <strong>$${cac}</strong></li>
       <li>New Customer Acquisitions: <strong>${customers} accounts</strong></li>
       <li>Gross Projected Revenue: <strong>$${revenue.toLocaleString()}</strong></li>
@@ -1640,17 +1694,20 @@ function sendFloatingMessage() {
 
   // Global chatbot basic responses
   setTimeout(() => {
+    const translation = TRANSLATIONS[appState.language];
     let reply = "I can guide you on that! Select one of the hubs (Education, Career, Finance, Entrepreneurship, Mentorship) on the sidebar menu to launch full tools for interactive plans, calculations, and evaluations.";
     
     const query = text.toLowerCase();
-    if (query.includes('resume') || query.includes('interview')) {
-      reply = "To run mock interviews or check resume ATS compatibility, click the 'Career Hub' on the left menu.";
+    if (query.includes('resume') || query.includes('interview') || query.includes('portfolio')) {
+      reply = translation.careerHint;
     } else if (query.includes('money') || query.includes('saving') || query.includes('budget') || query.includes('loan')) {
-      reply = "Track your budget, test loan eligibility, and query government support options inside the 'Finance Hub'.";
-    } else if (query.includes('business') || query.includes('startup') || query.includes('marketing') || query.includes('brand')) {
-      reply = "Draft custom business model canvas assets, check year 1 growth charts, and write branding pitches inside the 'Entrepreneurship' tab.";
+      reply = translation.financeHint;
+    } else if (query.includes('business') || query.includes('startup') || query.includes('marketing') || query.includes('brand') || query.includes('funding')) {
+      reply = translation.startupHint;
     } else if (query.includes('course') || query.includes('school') || query.includes('learn') || query.includes('roadmap')) {
-      reply = "Generate personalized step-by-step career path roadmaps, search scholarships, and track certifications inside the 'Education Hub'.";
+      reply = translation.roadmapHint;
+    } else if (query.includes('mentor') || query.includes('community') || query.includes('goal')) {
+      reply = "Community Hub me mentor matching, AI mentor advice, forum discussions, aur goal tracker available hai.";
     }
 
     container.innerHTML += `
