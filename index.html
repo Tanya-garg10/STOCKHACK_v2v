@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ElevateHer AI - Empowering Women through Learning, Career, and Finance</title>
+  <!-- FontAwesome for Premium Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ================= AUTHENTICATION WRAPPER ================= -->
+  <div id="auth-view" class="auth-wrapper">
+    <!-- Glowing aesthetic background blobs and grids -->
+    <div class="auth-bg-blob blob-1"></div>
+    <div class="auth-bg-blob blob-2"></div>
+    <div class="auth-bg-blob blob-3"></div>
+    <div class="auth-bg-grid"></div>
+
+    <!-- Sign In Card -->
+    <div id="login-card" class="auth-card">
+      <div class="auth-logo">
+        <h1><span class="text-gradient">ElevateHer AI</span></h1>
+        <p>Your AI-Powered Journey to Empowerment Starts Here</p>
+      </div>
+      
+      <form id="login-form">
+        <div class="form-group floating-group">
+          <input type="email" id="login-email" class="form-control" placeholder=" " required>
+          <label for="login-email">Email Address</label>
+        </div>
+        <div class="form-group floating-group">
+          <input type="password" id="login-password" class="form-control" placeholder=" " required>
+          <label for="login-password">Password</label>
+        </div>
+        <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">
+          Log In <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        </button>
+      </form>
+
+      <div class="auth-toggle">
+        Don't have an account? <span id="to-signup">Sign Up</span>
+      </div>
+
+      <div style="text-align: center; margin-top: 25px; color: var(--text-muted); font-size: 13px;">Or sign in with</div>
+      <div class="social-auth">
+        <button id="google-login-btn" class="social-btn"><i class="fa-brands fa-google"></i></button>
+        <button class="social-btn"><i class="fa-brands fa-linkedin-in"></i></button>
+        <button class="social-btn"><i class="fa-brands fa-github"></i></button>
+      </div>
+    </div>
+
+    <!-- Sign Up Card -->
+    <div id="signup-card" class="auth-card hidden">
+      <div class="auth-logo">
+        <h1><span class="text-gradient">Create Account</span></h1>
+        <p>Join a community of women achieving independence</p>
+      </div>
+      
+      <form id="signup-form">
+        <div class="form-group floating-group">
+          <input type="text" id="signup-name" class="form-control" placeholder=" " required>
+          <label for="signup-name">Full Name</label>
+        </div>
+        <div class="form-group floating-group">
+          <input type="email" id="signup-email" class="form-control" placeholder=" " required>
+          <label for="signup-email">Email Address</label>
+        </div>
+        <div class="form-group floating-group">
+          <input type="password" id="signup-password" class="form-control" placeholder=" " required>
+          <label for="signup-password">Password</label>
+        </div>
+        <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">
+          Create Account <i class="fa-solid fa-user-plus"></i>
+        </button>
+      </form>
+
+      <div class="auth-toggle">
+        Already have an account? <span id="to-login">Log In</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MAIN APP CONTAINER ================= -->
+  <div id="app-view" class="app-container hidden">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-icon">
+          <i class="fa-solid fa-crown"></i>
+        </div>
+        <div class="brand-name"><span class="text-gradient">ElevateHer AI</span></div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li class="menu-item active" data-target="overview-panel">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Dashboard</span>
+        </li>
+        <li class="menu-item" data-target="education-panel">
+          <i class="fa-solid fa-user-graduate"></i>
+          <span>Education Hub</span>
+        </li>
+        <li class="menu-item" data-target="career-panel">
+          <i class="fa-solid fa-briefcase"></i>
+          <span>Career Hub</span>
+        </li>
+        <li class="menu-item" data-target="finance-panel">
+          <i class="fa-solid fa-wallet"></i>
+          <span>Finance Hub</span>
+        </li>
+        <li class="menu-item" data-target="entrepreneurship-panel">
+          <i class="fa-solid fa-rocket"></i>
+          <span>Entrepreneurship</span>
+        </li>
+        <li class="menu-item" data-target="mentorship-panel">
+          <i class="fa-solid fa-users"></i>
+          <span>Community & Mentors</span>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-widget">
+          <div id="profile-avatar" class="user-avatar">U</div>
+          <div class="user-meta">
+            <div id="profile-name" class="user-meta-name">Guest User</div>
+            <div id="profile-level" class="user-meta-level">Level 1: Explorer</div>
+          </div>
+        </div>
+        <button id="logout-btn" class="btn btn-secondary btn-sm" style="width: 100%;">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Log Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="main-content">
+      
+      <!-- Top header layout -->
+      <header class="main-header">
+        <div class="header-welcome">
+          <h2 id="welcome-title">Hello, Explorer</h2>
+          <p id="today-date">Friday, July 10, 2026</p>
+        </div>
+        <div class="header-controls">
+          <div class="notif-bell">
+            <i class="fa-regular fa-bell"></i>
+            <div class="notif-dot"></div>
+          </div>
+          <div class="btn btn-sm text-gradient btn-secondary" style="border-color: var(--accent-pink);">
+            <i class="fa-solid fa-gem text-pink"></i> <span id="user-points">120 Points</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ================= HUB PANELS ================= -->
+      
+      <!-- 1. OVERVIEW PANEL -->
+      <section id="overview-panel" class="hub-panel">
+        <div class="section-grid">
+          <!-- Overview statistics widgets -->
+          <div class="glass-card span-3">
+            <div class="stat-box">
+              <div class="stat-icon purple"><i class="fa-solid fa-award"></i></div>
+              <div class="stat-data">
+                <span class="stat-lbl">Empowerment Rank</span>
+                <span class="stat-val">Top 15%</span>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card span-3">
+            <div class="stat-box">
+              <div class="stat-icon pink"><i class="fa-solid fa-graduation-cap"></i></div>
+              <div class="stat-data">
+                <span class="stat-lbl">Roadmap Status</span>
+                <span class="stat-val">3 / 8 Steps</span>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card span-3">
+            <div class="stat-box">
+              <div class="stat-icon teal"><i class="fa-solid fa-bullseye"></i></div>
+              <div class="stat-data">
+                <span class="stat-lbl">Savings Achieved</span>
+                <span class="stat-val">$850 / $2k</span>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card span-3">
+            <div class="stat-box">
+              <div class="stat-icon gold"><i class="fa-solid fa-fire"></i></div>
+              <div class="stat-data">
+                <span class="stat-lbl">Daily Streak</span>
+                <span class="stat-val">5 Days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-grid">
+          <!-- Progress Chart card -->
+          <div class="glass-card span-8">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-chart-simple"></i> Weekly Activity Progress</h3>
+              <span class="text-muted" style="font-size: 13px;">Learning & Savings metrics combined</span>
+            </div>
+            <div class="svg-chart-container">
+              <div class="chart-bar" style="height: 35%;" data-value="Mon: 35m"></div>
+              <div class="chart-bar" style="height: 60%;" data-value="Tue: 60m"></div>
+              <div class="chart-bar" style="height: 45%;" data-value="Wed: 45m"></div>
+              <div class="chart-bar" style="height: 85%;" data-value="Thu: 85m"></div>
+              <div class="chart-bar" style="height: 70%;" data-value="Fri: 70m"></div>
+              <div class="chart-bar" style="height: 50%;" data-value="Sat: 50m"></div>
+              <div class="chart-bar" style="height: 90%;" data-value="Sun: 90m"></div>
+            </div>
+            <div class="chart-labels">
+              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            </div>
+          </div>
+
+          <!-- Quick action cards -->
+          <div class="glass-card span-4">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-wand-magic-sparkles"></i> AI Quick Actions</h3>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button class="btn btn-secondary btn-sm" onclick="switchTab('career-panel')">
+                <i class="fa-solid fa-file-invoice"></i> Analyze Resume ATS
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="switchTab('career-panel')">
+                <i class="fa-solid fa-comments"></i> Start Mock Interview
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="switchTab('entrepreneurship-panel')">
+                <i class="fa-solid fa-lightbulb"></i> Create Business Plan
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="switchTab('education-panel')">
+                <i class="fa-solid fa-route"></i> Generate Roadmaps
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-grid">
+          <!-- Daily advice & Quote of the day -->
+          <div class="glass-card span-12" style="background: linear-gradient(135deg, rgba(236, 64, 122, 0.1) 0%, rgba(142, 68, 173, 0.1) 100%); border-color: rgba(236, 64, 122, 0.2);">
+            <div class="glass-card-header">
+              <h3 class="text-gradient"><i class="fa-solid fa-lightbulb"></i> Daily Mentorship & Inspiration</h3>
+            </div>
+            <blockquote style="font-size: 16px; font-style: italic; line-height: 1.6; margin-bottom: 12px;">
+              "A woman with a voice is, by definition, a strong woman. But the search to find that voice can be remarkably difficult. We build ElevateHer AI to accelerate your path to financial and intellectual self-reliance."
+            </blockquote>
+            <cite style="font-size: 13px; color: var(--accent-rose); font-weight: 600;">— Melinda French Gates</cite>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. EDUCATION HUB PANEL -->
+      <section id="education-panel" class="hub-panel hidden">
+        <div class="section-grid">
+          <!-- AI personalized timeline/roadmap generator -->
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-route"></i> AI Personalized Learning Roadmap</h3>
+            </div>
+            <div class="form-group">
+              <label for="roadmap-interest">What career path or skill do you want to master?</label>
+              <input type="text" id="roadmap-interest" class="form-control" placeholder="e.g., UI/UX Design, Python Data Science, Financial Accounting">
+            </div>
+            <button id="generate-roadmap-btn" class="btn">
+              Generate Custom AI Roadmap <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </button>
+            
+            <!-- Result timeline render -->
+            <div id="roadmap-output" class="timeline hidden" style="margin-top: 30px;">
+              <!-- Timelines generated by JS injection -->
+            </div>
+          </div>
+
+          <!-- Certification Tracker & Study Planner -->
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-medal"></i> Certification Tracker</h3>
+            </div>
+            <form id="cert-form" style="display: flex; gap: 10px; margin-bottom: 20px;">
+              <input type="text" id="cert-name" class="form-control" placeholder="Certification Name" required>
+              <input type="text" id="cert-org" class="form-control" placeholder="Issuing Org" required>
+              <button type="submit" class="btn btn-sm"><i class="fa-solid fa-plus"></i></button>
+            </form>
+            <div id="cert-list" class="card-list">
+              <!-- Certifications list dynamically added -->
+            </div>
+
+            <div class="glass-card-header" style="margin-top: 30px; margin-bottom: 10px;">
+              <h3><i class="fa-regular fa-calendar-check"></i> Study Planner Tasks</h3>
+            </div>
+            <form id="study-form" style="display: flex; gap: 10px; margin-bottom: 20px;">
+              <input type="text" id="study-task" class="form-control" placeholder="Study Task (e.g., Read Module 1)" required>
+              <button type="submit" class="btn btn-sm"><i class="fa-solid fa-calendar-plus"></i></button>
+            </form>
+            <ul id="study-list" style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
+              <!-- Study tasks dynamic list -->
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-grid">
+          <!-- Course recommendations -->
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-graduation-cap"></i> Curated Course Recommendations</h3>
+            </div>
+            <div class="card-list">
+              <div class="card-item">
+                <div>
+                  <div class="card-item-title">Intro to Web Architecture (HTML/CSS/JS)</div>
+                  <div class="card-item-subtitle">ElevateHer Academy • Beginner • Free</div>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="addStudyTask('Complete Intro to Web Architecture')">Enroll</button>
+              </div>
+              <div class="card-item">
+                <div>
+                  <div class="card-item-title">Financial Freedom & Budgeting Basics</div>
+                  <div class="card-item-subtitle">Aria Wealth Coaching • Beginner • Free</div>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="addStudyTask('Complete Financial Freedom Course')">Enroll</button>
+              </div>
+              <div class="card-item">
+                <div>
+                  <div class="card-item-title">Pitching & Venture Capital Fundraising</div>
+                  <div class="card-item-subtitle">SheVC Capital • Intermediate • Free</div>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="addStudyTask('Complete Pitching Course')">Enroll</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scholarship finder -->
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-magnifying-glass-dollar"></i> Global Scholarship & Grant Finder</h3>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+              <input type="text" id="scholarship-search" class="form-control" placeholder="Search by region, field...">
+              <button class="btn btn-secondary btn-sm" id="search-scholarship-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div id="scholarship-list" class="card-list">
+              <!-- Scholarship list dynamically items -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. CAREER HUB PANEL -->
+      <section id="career-panel" class="hub-panel hidden">
+        <div class="section-grid">
+          <!-- AI Resume Checker -->
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-file-circle-check"></i> Resume & ATS Score Analyzer</h3>
+            </div>
+            <div class="form-group">
+              <label for="resume-text">Paste your Resume Content (Markdown or Plain Text)</label>
+              <textarea id="resume-text" class="form-control" rows="8" placeholder="Paste Work Experience, Education, Skills here..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="resume-target-job">Target Job Description (Optional)</label>
+              <input type="text" id="resume-target-job" class="form-control" placeholder="e.g., Frontend React Developer, Project Manager">
+            </div>
+            <button id="analyze-resume-btn" class="btn">
+              Analyze ATS Score <i class="fa-solid fa-circle-notch fa-spin hidden" id="resume-spinner"></i>
+            </button>
+
+            <!-- ATS Score Overlay Results -->
+            <div id="ats-results" class="hidden" style="margin-top: 30px; animation: fadeIn 0.4s;">
+              <div class="ats-container">
+                <div class="circle-score-wrapper">
+                  <svg width="120" height="120">
+                    <circle cx="60" cy="60" r="50" class="circle-score-bg"></circle>
+                    <circle cx="60" cy="60" r="50" class="circle-score-progress" id="ats-progress-circle"></circle>
+                    <defs>
+                      <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="var(--accent-pink)" />
+                        <stop offset="100%" stop-color="var(--accent-purple)" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div class="circle-score-text" id="ats-score-value">85%</div>
+                </div>
+                <div>
+                  <h4 style="font-family: var(--font-family-title); font-size: 16px; margin-bottom: 5px;">ATS Compatibility Review</h4>
+                  <p id="ats-review-summary" style="font-size: 13px; color: var(--text-muted);"></p>
+                </div>
+              </div>
+              <div style="margin-top: 20px;">
+                <h5 style="color: var(--accent-pink); font-size: 13px; margin-bottom: 8px;">Critical Recommendations:</h5>
+                <ul id="ats-suggestions" style="list-style: inside; font-size: 13px; color: var(--text-main); display:flex; flex-direction:column; gap:6px;">
+                  <!-- suggestions lists -->
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Mock Interview simulator -->
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-headset"></i> AI Interactive Mock Interview</h3>
+            </div>
+            
+            <div id="interview-setup">
+              <div class="form-group">
+                <label for="interview-role">Select Desired Role</label>
+                <select id="interview-role" class="form-control">
+                  <option value="Software Engineer">Software Engineer</option>
+                  <option value="Product Manager">Product Manager</option>
+                  <option value="Data Analyst">Data Analyst</option>
+                  <option value="Startup Pitch">Business Founder Pitch</option>
+                </select>
+              </div>
+              <button id="start-interview-btn" class="btn" style="width: 100%;">
+                Start AI Mock Interview Session
+              </button>
+            </div>
+
+            <!-- Active interview box -->
+            <div id="interview-active" class="hidden">
+              <div class="chat-container">
+                <div class="chat-header">
+                  <div class="brand-icon" style="width: 30px; height: 30px; font-size: 14px;"><i class="fa-solid fa-robot"></i></div>
+                  <div>
+                    <h4 id="interview-bot-name" style="font-size: 14px;">Interviewer AI</h4>
+                    <span style="font-size: 11px; color: var(--accent-pink)">Level: Real-time Evaluation Mode</span>
+                  </div>
+                </div>
+                <div id="interview-chat-messages" class="chat-messages">
+                  <!-- interview bubbles -->
+                </div>
+                <div class="chat-input-area">
+                  <input type="text" id="interview-input" class="form-control" placeholder="Type your response to the question...">
+                  <button id="send-interview-btn" class="btn"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-grid">
+          <!-- Job suggestions -->
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-briefcase"></i> Job & Internship Recommendations</h3>
+            </div>
+            <div class="card-list">
+              <div class="card-item">
+                <div>
+                  <div class="card-item-title">Junior Developer (React/Node)</div>
+                  <div class="card-item-subtitle">FemTech Solutions • Remote / NYC • Full-time</div>
+                  <div style="font-size: 11px; color: var(--accent-pink); margin-top: 5px;">92% Skill Match</div>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="alert('Successfully Applied (Simulated)')">Quick Apply</button>
+              </div>
+              <div class="card-item">
+                <div>
+                  <div class="card-item-title">Associate Product Manager</div>
+                  <div class="card-item-subtitle">Scribe Fintech • San Francisco • Full-time</div>
+                  <div style="font-size: 11px; color: var(--accent-pink); margin-top: 5px;">84% Skill Match</div>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="alert('Successfully Applied (Simulated)')">Quick Apply</button>
+              </div>
+              <div class="card-item">
+                <div>
+                  <div class="card-item-title">Venture Capital Analyst Intern</div>
+                  <div class="card-item-subtitle">Bloom Capital • London / Hybrid • Intern</div>
+                  <div style="font-size: 11px; color: var(--accent-pink); margin-top: 5px;">78% Skill Match</div>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="alert('Successfully Applied (Simulated)')">Quick Apply</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Skill gap analysis -->
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-circle-exclamation"></i> AI Skill Gap Analysis</h3>
+            </div>
+            <div class="form-group">
+              <label for="target-skill-role">Enter your Target Career Role</label>
+              <input type="text" id="target-skill-role" class="form-control" placeholder="e.g., Senior Data Scientist">
+            </div>
+            <button id="check-gap-btn" class="btn">Analyze Skill Gap</button>
+            <div id="gap-output" class="hidden" style="margin-top: 20px;">
+              <h4 style="font-size: 14px; margin-bottom: 10px;">Missing Skills vs. Course Roadmaps</h4>
+              <div style="display:flex; flex-direction:column; gap:10px;" id="gap-items-container">
+                <!-- gap results items -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. FINANCE HUB PANEL -->
+      <section id="finance-panel" class="hub-panel hidden">
+        <div class="section-grid">
+          <!-- Budget planner & tracker -->
+          <div class="glass-card span-8">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-calculator"></i> Budget Tracker & Expense Logger</h3>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+              <div>
+                <span class="stat-lbl">Remaining Balance</span>
+                <h4 id="finance-balance" style="font-size: 28px; font-weight: 700; color: var(--accent-teal);">$0.00</h4>
+              </div>
+              <div>
+                <span class="stat-lbl">Savings Goal Progress</span>
+                <div class="progress-bar-container" style="height: 10px;">
+                  <div class="progress-bar" id="savings-overall-progress" style="width: 42.5%;"></div>
+                </div>
+                <span style="font-size: 12px; color: var(--text-muted); display:block; margin-top:5px;" id="savings-progress-text">Saved $850 of $2,000</span>
+              </div>
+            </div>
+
+            <!-- Expense entry form -->
+            <form id="transaction-form" style="display:grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; margin-bottom: 20px;">
+              <input type="text" id="tx-desc" class="form-control" placeholder="Description (e.g., Course Books)" required>
+              <input type="number" id="tx-amount" class="form-control" placeholder="Amount" step="0.01" required>
+              <select id="tx-type" class="form-control">
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+              <button type="submit" class="btn"><i class="fa-solid fa-plus"></i></button>
+            </form>
+
+            <table class="glass-table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="transaction-history">
+                <!-- JS populates transactions -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Savings Goal Planner & Loan Checker -->
+          <div class="glass-card span-4">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-bullseye"></i> Savings Goals</h3>
+            </div>
+            <div class="card-list">
+              <div class="card-item" style="flex-direction: column; align-items: stretch;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span class="card-item-title">Emergency Fund</span>
+                  <span class="text-teal font-semibold">$500 / $1000</span>
+                </div>
+                <div class="progress-bar-container"><div class="progress-bar" style="width: 50%; background: var(--gradient-teal-blue);"></div></div>
+              </div>
+              <div class="card-item" style="flex-direction: column; align-items: stretch;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span class="card-item-title">MacBook for Coding</span>
+                  <span class="text-pink font-semibold">$350 / $1000</span>
+                </div>
+                <div class="progress-bar-container"><div class="progress-bar" style="width: 35%;"></div></div>
+              </div>
+            </div>
+
+            <!-- Loan Eligibility Checker -->
+            <div class="glass-card-header" style="margin-top: 30px;">
+              <h3><i class="fa-solid fa-landmark"></i> Loan Eligibility Simulator</h3>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label for="loan-income">Monthly Income ($)</label>
+                <input type="number" id="loan-income" class="form-control" placeholder="e.g., 3000">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label for="loan-credit">Credit Score</label>
+                <input type="number" id="loan-credit" class="form-control" placeholder="e.g., 710">
+              </div>
+              <button id="check-loan-btn" class="btn btn-sm">Calculate Eligibility</button>
+              <div id="loan-result" class="hidden" style="padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); font-size: 13px;">
+                <!-- loan result inject -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-grid">
+          <!-- Government Schemes Finder -->
+          <div class="glass-card span-12">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-building-columns"></i> Government Support Schemes & Grants Finder</h3>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; max-width: 400px;">
+              <input type="text" id="scheme-search" class="form-control" placeholder="Search schemes (e.g., Mudra, Women Grant)">
+              <button class="btn btn-secondary btn-sm" id="search-scheme-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <table class="glass-table">
+              <thead>
+                <tr>
+                  <th>Scheme Name</th>
+                  <th>Category</th>
+                  <th>Benefit Details</th>
+                  <th>Apply</th>
+                </tr>
+              </thead>
+              <tbody id="schemes-list">
+                <!-- Javascript maps rows here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. ENTREPRENEURSHIP HUB PANEL -->
+      <section id="entrepreneurship-panel" class="hub-panel hidden">
+        <div class="section-grid">
+          <!-- Business Plan Generator Form -->
+          <div class="glass-card span-4">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-folder-open"></i> Start Business Incubator</h3>
+            </div>
+            <div class="form-group">
+              <label for="biz-name">Company / Project Name</label>
+              <input type="text" id="biz-name" class="form-control" placeholder="e.g., Bloom Organics">
+            </div>
+            <div class="form-group">
+              <label for="biz-industry">Industry Sector</label>
+              <input type="text" id="biz-industry" class="form-control" placeholder="e.g., E-commerce Beauty, EdTech">
+            </div>
+            <div class="form-group">
+              <label for="biz-problem">Problem & Solution Overview</label>
+              <textarea id="biz-problem" class="form-control" rows="3" placeholder="Explain the problem you solve..."></textarea>
+            </div>
+            <button id="generate-biz-btn" class="btn" style="width: 100%;">
+              Synthesize Business Model <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </button>
+          </div>
+
+          <!-- Business Model Canvas & Plan Output -->
+          <div class="glass-card span-8">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-cubes"></i> Interactive Business Model Canvas</h3>
+            </div>
+            
+            <div class="canvas-grid" id="canvas-view">
+              <div class="canvas-box span-row2">
+                <div class="canvas-box-title"><i class="fa-solid fa-key"></i> Key Partners</div>
+                <ul id="canvas-partners">
+                  <li>Organic farming cooperatives</li>
+                  <li>Glass bottling suppliers</li>
+                </ul>
+              </div>
+              <div class="canvas-box">
+                <div class="canvas-box-title"><i class="fa-solid fa-clipboard-check"></i> Key Activities</div>
+                <ul id="canvas-activities">
+                  <li>Quality control testing</li>
+                  <li>Direct e-commerce logistics</li>
+                </ul>
+              </div>
+              <div class="canvas-box span-row2">
+                <div class="canvas-box-title"><i class="fa-solid fa-heart"></i> Value Propositions</div>
+                <ul id="canvas-propositions">
+                  <li>100% toxic-free, ethical formulas</li>
+                  <li>Carbon-neutral shipping guarantees</li>
+                </ul>
+              </div>
+              <div class="canvas-box">
+                <div class="canvas-box-title"><i class="fa-solid fa-face-smile"></i> Customer Relations</div>
+                <ul id="canvas-relations">
+                  <li>Direct subscription club benefits</li>
+                  <li>Holistic beauty advisory board</li>
+                </ul>
+              </div>
+              <div class="canvas-box span-row2">
+                <div class="canvas-box-title"><i class="fa-solid fa-users"></i> Customer Segments</div>
+                <ul id="canvas-segments">
+                  <li>Eco-conscious millennials</li>
+                  <li>Customers with hyper-sensitive skin</li>
+                </ul>
+              </div>
+              <div class="canvas-box">
+                <div class="canvas-box-title"><i class="fa-solid fa-gem"></i> Key Resources</div>
+                <ul id="canvas-resources">
+                  <li>Patented botanical formulas</li>
+                  <li>In-house fulfillment center</li>
+                </ul>
+              </div>
+              <div class="canvas-box">
+                <div class="canvas-box-title"><i class="fa-solid fa-truck"></i> Channels</div>
+                <ul id="canvas-channels">
+                  <li>Website storefront (D2C)</li>
+                  <li>Instagram shopping feeds</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-grid">
+          <!-- Branding & Marketing content assistant -->
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-palette"></i> Branding & Marketing Slogan Generator</h3>
+            </div>
+            <div class="form-group">
+              <label for="marketing-keywords">Keywords about your startup idea (separated by commas)</label>
+              <input type="text" id="marketing-keywords" class="form-control" placeholder="organic, clean, beauty, skincare">
+            </div>
+            <button id="generate-marketing-btn" class="btn btn-sm">Generate Brand Identity Assets</button>
+            
+            <div id="marketing-output" class="hidden" style="margin-top: 20px;">
+              <h4 style="font-size:14px; margin-bottom:10px; color: var(--accent-pink);">Suggested Brand Slogans:</h4>
+              <ul style="list-style:inside; font-size:13px; color: var(--text-main); display:flex; flex-direction:column; gap:8px;" id="marketing-slogan-list">
+                <!-- slogans list -->
+              </ul>
+              <h4 style="font-size:14px; margin-top:20px; margin-bottom:10px; color: var(--accent-teal);">Visual Brand Archetype:</h4>
+              <p id="marketing-archetype" style="font-size:13px; color:var(--text-muted);"></p>
+            </div>
+          </div>
+
+          <!-- Business Growth metrics simulator -->
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-chart-line"></i> Business Growth Analytics Simulator</h3>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label for="startup-marketing-budget">Monthly Marketing Budget ($)</label>
+                <input type="number" id="startup-marketing-budget" class="form-control" placeholder="e.g., 500">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label for="startup-conversion">Conversion Rate (%)</label>
+                <input type="number" id="startup-conversion" class="form-control" placeholder="e.g., 2.5" step="0.1">
+              </div>
+              <button id="run-growth-btn" class="btn">Simulate Year 1 Growth</button>
+              <div id="growth-output" class="hidden" style="margin-top: 15px; border-radius: 8px; border:1px solid var(--glass-border); padding: 12px; font-size:13px;">
+                <!-- growth analytics logs -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. COMMUNITY & MENTORSHIP PANEL -->
+      <section id="mentorship-panel" class="hub-panel hidden">
+        <div class="section-grid">
+          <!-- AI Mentor Chatbot Selector -->
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-user-tie"></i> Consult AI Mentor</h3>
+            </div>
+            <div class="form-group">
+              <label for="mentor-select">Choose Mentor Personality</label>
+              <select id="mentor-select" class="form-control">
+                <option value="sophia">Sophia - VP of Product & Engineering (Tech & Leadership)</option>
+                <option value="elara">Elara - Venture Capital Partner (Fundraising & Scale)</option>
+                <option value="aria">Aria - Certified Financial Planner (Wealth & Budgets)</option>
+              </select>
+            </div>
+
+            <!-- Mentor Conversation Box -->
+            <div class="chat-container">
+              <div class="chat-header">
+                <div class="brand-icon" style="width: 30px; height: 30px; font-size: 14px;"><i class="fa-solid fa-graduation-cap"></i></div>
+                <div>
+                  <h4 id="mentor-chat-name" style="font-size: 14px;">Sophia</h4>
+                  <span id="mentor-chat-role" style="font-size: 11px; color: var(--accent-pink)">Product Advisor</span>
+                </div>
+              </div>
+              <div id="mentor-chat-messages" class="chat-messages">
+                <!-- messages dynamically load -->
+              </div>
+              <div class="chat-input-area">
+                <input type="text" id="mentor-input" class="form-control" placeholder="Ask your mentor a question...">
+                <button id="send-mentor-btn" class="btn"><i class="fa-solid fa-paper-plane"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Discussion Forum Board -->
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-regular fa-comments"></i> Discussion Forum Board</h3>
+            </div>
+            
+            <form id="forum-post-form" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+              <input type="text" id="forum-title" class="form-control" placeholder="Discussion Topic / Question Title" required>
+              <textarea id="forum-body" class="form-control" rows="2" placeholder="Write the details here..." required></textarea>
+              <button type="submit" class="btn btn-sm" style="align-self: flex-end;">Post to Forum</button>
+            </form>
+
+            <div id="forum-posts" class="card-list" style="max-height: 300px; overflow-y: auto;">
+              <!-- Javascript maps forum posts -->
+            </div>
+          </div>
+        </div>
+
+        <div class="section-grid">
+          <!-- Upcoming Networking Events -->
+          <div class="glass-card span-12">
+            <div class="glass-card-header">
+              <h3><i class="fa-regular fa-calendar"></i> Upcoming Networking Webinars & Events</h3>
+            </div>
+            <table class="glass-table">
+              <thead>
+                <tr>
+                  <th>Event Title</th>
+                  <th>Hosts / Panelists</th>
+                  <th>Date & Time</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-semibold text-pink">Women in VC Pitching Summit</td>
+                  <td>Elara Capital & Guests</td>
+                  <td>July 18, 2026 @ 6:00 PM EST</td>
+                  <td><button class="btn btn-sm btn-secondary" onclick="alert('Successfully RSVP\'d! Calendar invitation sent to your email.')">RSVP</button></td>
+                </tr>
+                <tr>
+                  <td class="font-semibold text-teal">Web Development Hackathon kickoff</td>
+                  <td>ElevateHer Academy Mentors</td>
+                  <td>August 2, 2026 @ 10:00 AM EST</td>
+                  <td><button class="btn btn-sm btn-secondary" onclick="alert('Successfully RSVP\'d! Calendar invitation sent to your email.')">RSVP</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= FLOATING AI ASSISTANT PANEL ================= -->
+  <div id="floating-chat-trigger" class="floating-ai-trigger">
+    <i class="fa-solid fa-wand-magic-sparkles"></i>
+  </div>
+  
+  <div id="floating-chat-panel" class="floating-ai-panel hidden">
+    <div class="chat-header" style="background: var(--gradient-glow);">
+      <div class="brand-icon" style="background: transparent; box-shadow: none; font-size: 20px;"><i class="fa-solid fa-sparkles"></i></div>
+      <div style="flex-grow:1;">
+        <h4 style="color: white; font-family: var(--font-family-title); font-size: 15px;">ElevateHer AI Assistant</h4>
+        <span style="font-size: 11px; color: rgba(255,255,255,0.8);">Always here to help you grow</span>
+      </div>
+      <i class="fa-solid fa-times" id="close-floating-chat" style="cursor: pointer; color: white;"></i>
+    </div>
+    
+    <div id="floating-messages" class="chat-messages">
+      <div class="chat-bubble bot">
+        Hello! I am your global ElevateHer Assistant. Ask me anything about learning roadmaps, resumes, business models, or saving budgets!
+      </div>
+    </div>
+    
+    <div class="chat-input-area">
+      <input type="text" id="floating-input" class="form-control" placeholder="Ask anything...">
+      <button id="send-floating-btn" class="btn"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
