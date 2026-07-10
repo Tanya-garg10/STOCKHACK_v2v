@@ -118,18 +118,13 @@ function setupAuthEventListeners() {
       name,
       password,
       level: "Level 1: Explorer",
-      points: 120,
+      points: 0,
+      streak: 1,
       certifications: [],
-      studyTasks: [
-        { id: 1, text: "Read Financial Freedom Guide Module 1", completed: false },
-        { id: 2, text: "Customize Resume formatting", completed: false }
-      ],
-      transactions: [
-        { id: 1, desc: "Scholarship Stipend Recieved", amount: 500, type: "income" },
-        { id: 2, desc: "Intro Python Textbooks", amount: 50, type: "expense" }
-      ],
+      studyTasks: [],
+      transactions: [],
       forumPosts: [
-        { id: 1, title: "Welcome to ElevateHer Forums!", body: "Ask questions, network, and grow together.", author: "System", date: "July 10, 2026" }
+        { id: 1, title: "Welcome to ElevateHer Forums!", body: "Ask questions, network, and grow together.", author: "System", date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }
       ]
     };
 
@@ -159,19 +154,14 @@ function setupAuthEventListeners() {
       appState.users[email] = {
         name: "Google Member",
         password: "google_login_mock",
-        level: "Level 2: Rising Leader",
-        points: 250,
-        certifications: [
-          { id: 1, name: "Intro to Financial Markets", org: "Aria Wealth", status: "Completed" }
-        ],
-        studyTasks: [
-          { id: 1, text: "Prepare Slide deck for Venture Pitch", completed: false }
-        ],
-        transactions: [
-          { id: 1, desc: "Initial Savings", amount: 850, type: "income" }
-        ],
+        level: "Level 1: Explorer",
+        points: 0,
+        streak: 1,
+        certifications: [],
+        studyTasks: [],
+        transactions: [],
         forumPosts: [
-          { id: 1, title: "Tips for first-time founders?", body: "Looking for guidance on pre-seed raises.", author: "Google Member", date: "July 10, 2026" }
+          { id: 1, title: "Welcome to ElevateHer Forums!", body: "Ask questions, network, and grow together.", author: "System", date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }
         ]
       };
       saveUsersToLocalStorage();
@@ -210,8 +200,21 @@ function startSession(email, user) {
   document.getElementById('dropdown-avatar').innerText = initials;
   document.getElementById('dropdown-name').innerText = user.name;
   document.getElementById('dropdown-level').innerText = user.level || "Level 1: Explorer";
-  document.getElementById('dropdown-points').innerText = `${user.points || 120} Points`;
+  document.getElementById('dropdown-points').innerText = `${user.points || 0} Points`;
   document.getElementById('welcome-title').innerText = `Hello, ${user.name.split(' ')[0]}`;
+
+  // Recalculate Overview metrics
+  const activeRoadmaps = appState.certifications.filter(c => c.status === "In Progress").length;
+  let savingsBalance = 0;
+  appState.transactions.forEach(t => {
+    savingsBalance += (t.type === 'income' ? t.amount : -t.amount);
+  });
+
+  document.getElementById('overview-level-hero').innerText = user.level || "Level 1: Explorer";
+  document.getElementById('overview-points').innerText = `${user.points || 0} Points`;
+  document.getElementById('overview-roadmaps').innerText = `${activeRoadmaps} Active`;
+  document.getElementById('overview-savings').innerText = `$${savingsBalance.toFixed(2)}`;
+  document.getElementById('overview-streak').innerText = `${user.streak || 1} Day (Today)`;
 
   // Render lists
   renderCertifications();
@@ -220,6 +223,7 @@ function startSession(email, user) {
   renderForumPosts();
   renderScholarships(SCHOLARSHIPS);
   renderSchemes(SCHEMES);
+  renderSocializePanel();
 
   // Toggle View
   document.getElementById('auth-view').classList.add('hidden');
@@ -249,6 +253,13 @@ function addPoints(amount) {
     
     document.getElementById('dropdown-level').innerText = user.level;
     document.getElementById('dropdown-points').innerText = `${user.points} Points`;
+    
+    // Also update Overview
+    if (document.getElementById('overview-points')) {
+      document.getElementById('overview-points').innerText = `${user.points} Points`;
+      document.getElementById('overview-level-hero').innerText = user.level;
+    }
+    
     saveUsersToLocalStorage();
   }
 }
@@ -289,6 +300,11 @@ function switchTab(targetId) {
       b.style.height = '0';
       setTimeout(() => b.style.height = h, 50);
     });
+  }
+
+  // Ensure Socialize panel renders checklist and simulator fresh when shown
+  if (targetId === 'socialize-panel') {
+    renderSocializePanel();
   }
 }
 
@@ -425,6 +441,13 @@ function generateAIRoadmap() {
 
 function renderCertifications() {
   const container = document.getElementById('cert-list');
+  
+  // Also update Overview Active roadmaps
+  const activeRoadmaps = appState.certifications.filter(c => c.status === "In Progress").length;
+  if (document.getElementById('overview-roadmaps')) {
+    document.getElementById('overview-roadmaps').innerText = `${activeRoadmaps} Active`;
+  }
+
   if (appState.certifications.length === 0) {
     container.innerHTML = `<div style="font-size: 12px; color: var(--text-muted); text-align:center;">No certifications added yet.</div>`;
     return;
@@ -816,6 +839,11 @@ function renderTransactions() {
   const percent = Math.min(Math.max((balance / 2000) * 100, 0), 100);
   document.getElementById('savings-overall-progress').style.width = `${percent}%`;
   document.getElementById('savings-progress-text').innerText = `Saved $${balance.toFixed(2)} of $2,000`;
+
+  // Also update Overview
+  if (document.getElementById('overview-savings')) {
+    document.getElementById('overview-savings').innerText = `$${balance.toFixed(2)}`;
+  }
 }
 
 function handleAddTransaction(e) {
@@ -1182,3 +1210,510 @@ function sendFloatingMessage() {
     addPoints(5);
   }, 1000);
 }
+
+// ================= G. SOCIALIZE & CONNECT ENGINE =================
+const INSTAGRAM_FEATURES = {
+  "1. Account Features": [
+    "Sign Up / Log In", "Personal Account", "Professional Account", "Creator Account", "Business Account", 
+    "Switch Account Type", "Multiple Account Login", "Profile Picture", "Username", "Bio", 
+    "Website Link", "Pronouns", "Threads Badge", "Profile Categories", "Contact Information", 
+    "Action Buttons", "Verification Badge", "Private Account", "Public Account", "Two-Factor Authentication (2FA)", 
+    "Login Activity", "Password Management"
+  ],
+  "2. Home Feed": [
+    "Personalized Feed", "Following Feed", "Favorites Feed", "Suggested Posts", "Sponsored Posts (Ads)", 
+    "Infinite Scrolling", "Refresh Feed", "Like Posts", "Comment on Posts", "Share Posts", 
+    "Save Posts", "Hide Like Counts", "Report Posts", "Mute Accounts", "Block Accounts", "Restrict Accounts"
+  ],
+  "3. Posts": [
+    "Photo Posts", "Video Posts", "Carousel Posts", "Collaborative Posts (Collab)", "Scheduled Posts (Professional)", 
+    "Edit Caption", "Edit Location", "Tag People", "Product Tags", "Alt Text", "Archive Posts", 
+    "Delete Posts", "Pin Posts", "Cross-post to Facebook", "Share to Story"
+  ],
+  "4. Reels": [
+    "Record Reels", "Upload Reels", "Remix Reels", "Templates", "Speed Controls", "Timer", 
+    "Green Screen", "Filters", "Effects", "Voice Effects", "Voiceover", "Audio Library", 
+    "Original Audio", "Captions", "Hashtags", "Reel Insights", "Download Own Reels", "Save Reels", 
+    "Like Reels", "Comment", "Share", "Send via DM"
+  ],
+  "5. Stories": [
+    "Photo Stories", "Video Stories", "Boomerang", "Layout", "Hands-Free Mode", "Story Filters", 
+    "Stickers", "GIF Stickers", "Emoji Stickers", "Music Sticker", "Poll Sticker", "Quiz Sticker", 
+    "Question Sticker", "Countdown Sticker", "Link Sticker", "Mention Sticker", "Location Sticker", 
+    "Hashtag Sticker", "Donation Sticker", "Product Sticker", "Story Drawing Tools", "Story Text", 
+    "Story Archive", "Story Highlights", "Close Friends Stories", "Story Likes", "Story Replies", 
+    "Story Views", "Story Sharing"
+  ],
+  "6. Messaging (Instagram Direct)": [
+    "One-to-One Chat", "Group Chat", "Vanish Mode", "Voice Messages", "Video Messages", "Photo Messages", 
+    "Video Calls", "Audio Calls", "Group Calls", "Stickers", "GIFs", "Emoji Reactions", "Message Replies", 
+    "Message Forwarding", "Message Translation", "Silent Messages", "Scheduled Messages", "Pin Chats", 
+    "Search Chats", "Unsend Messages", "Delete Chat", "Block Users", "Report Users"
+  ],
+  "7. Search & Explore": [
+    "Search Users", "Search Hashtags", "Search Audio", "Search Places", "Explore Feed", "Trending Reels", 
+    "Suggested Accounts", "Trending Topics", "Search Filters"
+  ],
+  "8. Content Creation": [
+    "Camera Filters", "AR Effects", "Beauty Filters", "Green Screen", "Background Replacement", 
+    "Text Animation", "Music Integration", "Stickers", "Templates", "AI Editing Tools", "Auto Captions"
+  ],
+  "9. Engagement": [
+    "Likes", "Comments", "Replies", "Mentions", "Tags", "Shares", "Saves", "Story Reactions", 
+    "Notes Reactions", "Follow Requests", "Notifications"
+  ],
+  "10. Notifications": [
+    "Likes", "Comments", "Mentions", "Tags", "Story Mentions", "Follow Requests", "Live Notifications", 
+    "Message Notifications", "Broadcast Channel Notifications", "Shopping Notifications"
+  ],
+  "11. Live Streaming": [
+    "Go Live", "Invite Guest", "Multiple Guests", "Live Chat", "Live Reactions", "Live Badges", 
+    "Live Moderation", "Pin Comments", "Live Replay", "Schedule Live"
+  ],
+  "12. Shopping": [
+    "Instagram Shop", "Product Catalog", "Product Tags", "Creator Recommendations", "Saved Products", 
+    "Wishlist", "Checkout"
+  ],
+  "13. Creator Tools": [
+    "Professional Dashboard", "Content Insights", "Audience Insights", "Engagement Analytics", 
+    "Reach Analytics", "Follower Growth", "Monetization Dashboard", "Bonus Programs", 
+    "Brand Collaborations", "Partnership Labels"
+  ],
+  "14. Business Features": [
+    "Business Dashboard", "Contact Buttons", "Appointment Booking", "WhatsApp Integration", 
+    "Facebook Integration", "Professional Email Button", "Promotions", "Ads Manager", "Lead Forms"
+  ],
+  "15. Monetization": [
+    "Gifts on Reels", "Subscriptions", "Badges during Live", "Brand Partnerships", "Affiliate Marketing", 
+    "Creator Marketplace"
+  ],
+  "16. Privacy & Security": [
+    "Private Account", "Close Friends", "Hidden Words", "Restrict Users", "Block Users", "Mute Users", 
+    "Hide Story From", "Comment Controls", "Message Controls", "Sensitive Content Control", 
+    "Two-Factor Authentication", "Login Alerts", "Download Your Data", "Activity Log"
+  ],
+  "17. Profile Customization": [
+    "Profile Picture", "Bio", "Website Links", "Multiple Links", "Music on Profile", "Pronouns", 
+    "Category", "Highlights", "Highlight Covers", "Pinned Posts", "Profile Theme"
+  ],
+  "18. AI Features": [
+    "AI Chat Assistant", "AI Stickers", "AI Image Generation", "AI Background Editing", 
+    "AI Caption Suggestions", "AI Search", "AI Recommendations"
+  ],
+  "19. Broadcast Channels": [
+    "Create Broadcast Channel", "Voice Updates", "Images", "Polls", "Reactions", "Channel Invites", 
+    "Channel Analytics"
+  ],
+  "20. Instagram Notes": [
+    "Text Notes", "Music Notes", "Prompt Notes", "Notes in DMs", "Notes Replies"
+  ],
+  "21. Collaboration": [
+    "Collab Posts", "Invite Collaborators", "Shared Reels", "Shared Stories", "Tag Brands", 
+    "Creator Marketplace"
+  ],
+  "22. Ads & Promotions": [
+    "Feed Ads", "Story Ads", "Reel Ads", "Explore Ads", "Carousel Ads", "Video Ads", "Boost Posts", 
+    "Audience Targeting", "Ad Insights"
+  ],
+  "23. Accessibility": [
+    "Alt Text", "Automatic Captions", "Screen Reader Support", "High Contrast Support", "Text Scaling"
+  ],
+  "24. Settings": [
+    "Account Center", "Privacy Settings", "Security Settings", "Notification Settings", "Language", 
+    "Theme", "Data Saver", "Storage Management", "Connected Apps", "Blocked Accounts", 
+    "Restricted Accounts", "Hidden Words", "Activity Status", "Download Data", "Delete Account", 
+    "Deactivate Account"
+  ],
+  "25. Additional Features": [
+    "Hashtags", "Geotags", "QR Code Profile", "Name Tags", "Link in Bio", "Saved Collections", 
+    "Archive", "Recently Deleted", "Favorites", "Close Friends List", "Meta Account Center", 
+    "Cross-App Messaging", "Suggested Friends", "Invite Friends", "Report Bugs", "Help Center", 
+    "Community Guidelines"
+  ]
+};
+
+// Phone simulator state
+let phoneState = {
+  feedLiked: false,
+  feedLikes: 98,
+  comments: [
+    { user: "aria_wealth", text: "Brilliant visual! 📈" },
+    { user: "elara_biz", text: "Consistency is key. Love the brand setup." }
+  ],
+  dmHistory: [
+    { sender: "bot", text: "Hello! I am your Instagram Strategy Coach. Ask me how to leverage Reels, Stories, or Subscriptions for your profile!" }
+  ]
+};
+
+function renderSocializePanel() {
+  const accordion = document.getElementById('features-accordion');
+  if (!accordion) return;
+
+  accordion.innerHTML = '';
+  
+  // Load checked features
+  const user = appState.currentUser ? appState.users[appState.currentUser] : null;
+  const checked = user ? (user.checkedFeatures || []) : [];
+
+  let index = 0;
+  for (const [category, list] of Object.entries(INSTAGRAM_FEATURES)) {
+    let itemsHTML = '';
+    list.forEach(feature => {
+      const isChecked = checked.includes(feature) ? 'checked' : '';
+      itemsHTML += `
+        <label class="feature-checkbox-label">
+          <input type="checkbox" onchange="toggleFeature(this, '${feature.replace(/'/g, "\\'")}')" ${isChecked}>
+          <span>${feature}</span>
+        </label>
+      `;
+    });
+
+    accordion.innerHTML += `
+      <div class="accordion-item" id="accordion-item-${index}">
+        <div class="accordion-trigger" onclick="toggleAccordion(${index})">
+          <span>${category}</span>
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="accordion-content">
+          ${itemsHTML}
+        </div>
+      </div>
+    `;
+    index++;
+  }
+
+  updateMasteryProgressBar();
+  setPhoneTab('feed');
+}
+
+window.toggleAccordion = function(index) {
+  const item = document.getElementById(`accordion-item-${index}`);
+  if (item) {
+    const isActive = item.classList.contains('active');
+    // Close other items
+    document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
+    if (!isActive) {
+      item.classList.add('active');
+    }
+  }
+};
+
+window.toggleFeature = function(checkbox, featureName) {
+  if (!appState.currentUser) return;
+  const user = appState.users[appState.currentUser];
+  if (!user.checkedFeatures) user.checkedFeatures = [];
+
+  if (checkbox.checked) {
+    if (!user.checkedFeatures.includes(featureName)) {
+      user.checkedFeatures.push(featureName);
+      addPoints(2);
+    }
+  } else {
+    user.checkedFeatures = user.checkedFeatures.filter(f => f !== featureName);
+    addPoints(-2);
+  }
+
+  saveUsersToLocalStorage();
+  updateMasteryProgressBar();
+};
+
+function updateMasteryProgressBar() {
+  const user = appState.currentUser ? appState.users[appState.currentUser] : null;
+  const checked = user ? (user.checkedFeatures || []) : [];
+  
+  // Total features count
+  let totalFeatures = 0;
+  for (const list of Object.values(INSTAGRAM_FEATURES)) {
+    totalFeatures += list.length;
+  }
+
+  const count = checked.length;
+  const percent = totalFeatures > 0 ? Math.round((count / totalFeatures) * 100) : 0;
+
+  const textEl = document.getElementById('mastery-percent');
+  const barEl = document.getElementById('mastery-progress-bar');
+  
+  if (textEl) textEl.innerText = `${percent}% (${count} / ${totalFeatures} Features)`;
+  if (barEl) barEl.style.width = `${percent}%`;
+}
+
+window.setPhoneTab = function(tabName, element) {
+  // Toggle bottom tab bar icon highlight
+  const tabbar = document.querySelector('.phone-tabbar');
+  if (tabbar) {
+    tabbar.querySelectorAll('i').forEach(icon => icon.classList.remove('active'));
+  }
+  if (element) {
+    element.classList.add('active');
+  } else {
+    // Select by matching icon type if triggered programmatically
+    const icons = document.querySelectorAll('.phone-tabbar i');
+    icons.forEach(icon => {
+      if (tabName === 'feed' && icon.classList.contains('fa-house')) icon.classList.add('active');
+      if (tabName === 'explore' && icon.classList.contains('fa-magnifying-glass')) icon.classList.add('active');
+      if (tabName === 'reels' && icon.classList.contains('fa-clapperboard')) icon.classList.add('active');
+      if (tabName === 'dm' && icon.classList.contains('fa-comment-dots')) icon.classList.add('active');
+      if (tabName === 'profile' && icon.classList.contains('fa-circle-user')) icon.classList.add('active');
+    });
+  }
+
+  const body = document.getElementById('phone-body-content');
+  if (!body) return;
+
+  if (tabName === 'feed') {
+    let commentListHTML = '';
+    phoneState.comments.forEach(c => {
+      commentListHTML += `
+        <div class="insta-comment-item">
+          <strong>${c.user}</strong> ${c.text}
+        </div>
+      `;
+    });
+
+    body.innerHTML = `
+      <!-- Stories Ring -->
+      <div class="insta-stories">
+        <div class="insta-story-item" onclick="alert('Viewing your story')">
+          <div class="insta-story-avatar-ring"><div class="insta-story-avatar">Y</div></div>
+          <span class="insta-story-name">Your Story</span>
+        </div>
+        <div class="insta-story-item" onclick="alert('Viewing sophia_ai story')">
+          <div class="insta-story-avatar-ring"><div class="insta-story-avatar" style="background:#8e44ad;">S</div></div>
+          <span class="insta-story-name">sophia_ai</span>
+        </div>
+        <div class="insta-story-item" onclick="alert('Viewing elara_biz story')">
+          <div class="insta-story-avatar-ring"><div class="insta-story-avatar" style="background:#27ae60;">E</div></div>
+          <span class="insta-story-name">elara_biz</span>
+        </div>
+        <div class="insta-story-item" onclick="alert('Viewing aria_wealth story')">
+          <div class="insta-story-avatar-ring"><div class="insta-story-avatar" style="background:#d35400;">A</div></div>
+          <span class="insta-story-name">aria_wealth</span>
+        </div>
+      </div>
+
+      <!-- Feed Post -->
+      <div class="insta-post">
+        <div class="insta-post-header">
+          <div class="insta-post-avatar">E</div>
+          <span class="insta-post-username">elevateher_global</span>
+        </div>
+        <div class="insta-post-media">
+          ElevateHer Global 🚀<br>
+          Building tools for women in leadership, tech, & entrepreneurship.
+        </div>
+        <div class="insta-post-actions">
+          <i class="${phoneState.feedLiked ? 'fa-solid fa-heart text-pink' : 'fa-regular fa-heart'}" onclick="togglePhoneLike(this)"></i>
+          <i class="fa-regular fa-comment" onclick="document.getElementById('phone-comment-input').focus()"></i>
+          <i class="fa-regular fa-paper-plane" onclick="setPhoneTab('dm')"></i>
+        </div>
+        <div class="insta-post-likes">
+          <span id="phone-likes-count">${phoneState.feedLikes}</span> likes
+        </div>
+        <div class="insta-post-caption">
+          <strong>elevateher_global</strong> What is your biggest milestone for Q3? Let us know below! 👇 #FemaleFounders #Leadership
+        </div>
+        
+        <!-- Comments -->
+        <div class="insta-post-comments" id="phone-comments-list">
+          ${commentListHTML}
+        </div>
+
+        <div class="insta-comment-row">
+          <input type="text" id="phone-comment-input" placeholder="Add a comment..." onkeypress="handlePhoneCommentKey(event)">
+          <button onclick="addPhoneComment()">Post</button>
+        </div>
+      </div>
+    `;
+  } else if (tabName === 'explore') {
+    body.innerHTML = `
+      <div style="padding: 10px 15px;">
+        <input type="text" class="form-control form-control-sm" placeholder="Search accounts, tags..." style="background:rgba(255,255,255,0.06); border:none; border-radius:8px; font-size:11px; height:28px;">
+      </div>
+      <div class="explore-grid">
+        <div class="explore-tile" onclick="alert('Viewing AI Roadmaps Explore Post')">🚀<br>Roadmaps</div>
+        <div class="explore-tile" onclick="alert('Viewing ATS Checker Post')">📄<br>ATS Score</div>
+        <div class="explore-tile" onclick="alert('Viewing Financial Markets Post')">📈<br>Markets</div>
+        <div class="explore-tile" onclick="alert('Viewing VC Pitch Post')">💡<br>Pitching</div>
+        <div class="explore-tile" onclick="alert('Viewing Female Founders Post')">👑<br>Leadership</div>
+        <div class="explore-tile" onclick="alert('Viewing Budget Guide Post')">💰<br>Savings</div>
+        <div class="explore-tile" onclick="alert('Viewing Mentorship Post')">💬<br>AI Mentors</div>
+        <div class="explore-tile" onclick="alert('Viewing Loan Planner Post')">🏦<br>Loans</div>
+        <div class="explore-tile" onclick="alert('Viewing Brand Generator Post')">🔮<br>Branding</div>
+      </div>
+    `;
+  } else if (tabName === 'reels') {
+    body.innerHTML = `
+      <div class="reels-container">
+        <div class="reels-screen">
+          <i class="fa-solid fa-clapperboard fa-2x" style="color:var(--accent-pink); margin-bottom:15px;"></i>
+          <h4 style="font-family:var(--font-family-title); font-size:15px; margin-bottom:8px;">ElevateHer Simulated Reel</h4>
+          <p class="text-muted" style="font-size:11px; line-height:1.4;">"Building a glassmorphic dashboard outline using raw CSS and JavaScript for female founders worldwide."</p>
+        </div>
+        <div class="reels-actions">
+          <div class="reels-action-btn"><i class="fa-solid fa-heart" style="color:#fff;" onclick="alert('Liked Reel')"></i><span>2.4k</span></div>
+          <div class="reels-action-btn"><i class="fa-solid fa-comment"></i><span>184</span></div>
+          <div class="reels-action-btn"><i class="fa-solid fa-paper-plane"></i><span></span></div>
+        </div>
+      </div>
+    `;
+  } else if (tabName === 'dm') {
+    let dmMessagesHTML = '';
+    phoneState.dmHistory.forEach(msg => {
+      dmMessagesHTML += `
+        <div class="dm-bubble ${msg.sender}">
+          ${msg.text}
+        </div>
+      `;
+    });
+
+    body.innerHTML = `
+      <div class="dm-container">
+        <div class="dm-header">
+          <i class="fa-solid fa-chevron-left" style="margin-right:10px; cursor:pointer;" onclick="setPhoneTab('feed')"></i>
+          <span>Instagram Coach AI</span>
+        </div>
+        <div class="dm-messages" id="phone-dm-messages">
+          ${dmMessagesHTML}
+        </div>
+        <div class="dm-input-row">
+          <input type="text" id="phone-dm-input" placeholder="Message..." onkeypress="handlePhoneDMKey(event)">
+          <button onclick="sendPhoneDM()"><i class="fa-solid fa-arrow-up"></i></button>
+        </div>
+      </div>
+    `;
+    setTimeout(() => {
+      const container = document.getElementById('phone-dm-messages');
+      if (container) container.scrollTop = container.scrollHeight;
+    }, 50);
+  } else if (tabName === 'profile') {
+    const user = appState.currentUser ? appState.users[appState.currentUser] : { name: "Guest User", level: "Level 1: Explorer" };
+    const initials = user.name.charAt(0).toUpperCase();
+    body.innerHTML = `
+      <div class="profile-container">
+        <div class="profile-header-info">
+          <div class="insta-post-avatar" style="width:48px; height:48px; font-size:18px;">${initials}</div>
+          <div class="profile-stats">
+            <div class="profile-stat-box"><div class="profile-stat-val">3</div><div class="profile-stat-lbl">posts</div></div>
+            <div class="profile-stat-box"><div class="profile-stat-val">120</div><div class="profile-stat-lbl">followers</div></div>
+            <div class="profile-stat-box"><div class="profile-stat-val">84</div><div class="profile-stat-lbl">following</div></div>
+          </div>
+        </div>
+        <div class="profile-details">
+          <div class="profile-name">${user.name}</div>
+          <div class="profile-bio">
+            Explorer • ${user.level || "Level 1: Explorer"}<br>
+            Scaling startups using ElevateHer AI tools. 🏆<br>
+            <a href="#" class="profile-bio-link">linktr.ee/elevateher</a>
+          </div>
+        </div>
+
+        <div class="profile-highlights-row">
+          <div class="profile-highlight-item">
+            <div class="profile-highlight-circle">📄</div>
+            <span class="profile-highlight-lbl">ATS</span>
+          </div>
+          <div class="profile-highlight-item">
+            <div class="profile-highlight-circle">📈</div>
+            <span class="profile-highlight-lbl">Markets</span>
+          </div>
+          <div class="profile-highlight-item">
+            <div class="profile-highlight-circle">💡</div>
+            <span class="profile-highlight-lbl">Pitch</span>
+          </div>
+        </div>
+
+        <div class="profile-posts-grid">
+          <div class="profile-grid-tile">ElevateHer<br>Level Up!</div>
+          <div class="profile-grid-tile">Financial<br>Freedom</div>
+          <div class="profile-grid-tile">AI Mentorship<br>Sophia</div>
+        </div>
+      </div>
+    `;
+  }
+};
+
+window.togglePhoneLike = function(heartIcon) {
+  phoneState.feedLiked = !phoneState.feedLiked;
+  if (phoneState.feedLiked) {
+    phoneState.feedLikes++;
+    heartIcon.className = "fa-solid fa-heart text-pink";
+  } else {
+    phoneState.feedLikes--;
+    heartIcon.className = "fa-regular fa-heart";
+  }
+  document.getElementById('phone-likes-count').innerText = phoneState.feedLikes;
+  addPoints(1);
+};
+
+window.handlePhoneCommentKey = function(e) {
+  if (e.key === 'Enter') addPhoneComment();
+};
+
+window.addPhoneComment = function() {
+  const input = document.getElementById('phone-comment-input');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+
+  const author = appState.currentUser ? appState.users[appState.currentUser].name.toLowerCase().replace(/\s+/g, '') : "guest";
+  phoneState.comments.push({ user: author, text });
+  
+  const list = document.getElementById('phone-comments-list');
+  if (list) {
+    list.innerHTML += `
+      <div class="insta-comment-item">
+        <strong>${author}</strong> ${text}
+      </div>
+    `;
+    list.scrollTop = list.scrollHeight;
+  }
+  input.value = '';
+  addPoints(3);
+};
+
+window.handlePhoneDMKey = function(e) {
+  if (e.key === 'Enter') sendPhoneDM();
+};
+
+window.sendPhoneDM = function() {
+  const input = document.getElementById('phone-dm-input');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+
+  phoneState.dmHistory.push({ sender: "user", text });
+  const container = document.getElementById('phone-dm-messages');
+  if (container) {
+    container.innerHTML += `
+      <div class="dm-bubble user">
+        ${text}
+      </div>
+    `;
+    container.scrollTop = container.scrollHeight;
+  }
+  input.value = '';
+
+  // Return simulated bot response
+  setTimeout(() => {
+    let coachReply = "That sounds like a smart strategy! Focus on integrating Instagram Reels Templates (Feature 4.4) to increase viral branding reach.";
+    const query = text.toLowerCase();
+    if (query.includes('reels') || query.includes('video')) {
+      coachReply = "Yes! Record Reels (Feature 4.1) using original audio tracks and captions. This triples search discoverability under Instagram SEO guidelines.";
+    } else if (query.includes('monetize') || query.includes('money') || query.includes('sub')) {
+      coachReply = "Build an audience first using Stories and Reels, then activate Subscriptions (Feature 15.2) and Brand Partnerships (Feature 15.4) to start earning revenue.";
+    } else if (query.includes('sell') || query.includes('shop')) {
+      coachReply = "Configure Product Tags (Feature 12.3) inside your business feed. In-app checkout helps converts followers into buyers directly.";
+    }
+
+    phoneState.dmHistory.push({ sender: "bot", text: coachReply });
+    if (container) {
+      container.innerHTML += `
+        <div class="dm-bubble bot">
+          ${coachReply}
+        </div>
+      `;
+      container.scrollTop = container.scrollHeight;
+    }
+    addPoints(4);
+  }, 1000);
+};

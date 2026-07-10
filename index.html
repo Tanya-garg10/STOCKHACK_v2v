@@ -7,7 +7,7 @@
   <!-- FontAwesome for Premium Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -120,6 +120,10 @@
           <i class="fa-solid fa-users"></i>
           <span>Community & Mentors</span>
         </li>
+        <li class="menu-item" data-target="socialize-panel">
+          <i class="fa-brands fa-instagram"></i>
+          <span>Socialize & Connect</span>
+        </li>
       </ul>
 
       <div class="navbar-right">
@@ -170,13 +174,30 @@
       <!-- 1. OVERVIEW PANEL -->
       <section id="overview-panel" class="hub-panel">
         <div class="section-grid">
+          <!-- Hero welcome banner -->
+          <div class="glass-card span-12" style="background: linear-gradient(135deg, rgba(236, 64, 122, 0.12) 0%, rgba(142, 68, 173, 0.12) 100%); border-color: rgba(236, 64, 122, 0.2); padding: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+              <div>
+                <span class="btn btn-secondary btn-sm" style="background: rgba(236, 64, 122, 0.15); font-size:11px; margin-bottom: 12px; border-color: var(--accent-pink); pointer-events: none;"><i class="fa-solid fa-sparkles"></i> Welcome to ElevateHer Workspace</span>
+                <h1 style="font-family: var(--font-family-title); font-size: 30px; font-weight: 800; margin-bottom: 8px; line-height:1.2;">Empower Your Skills, Career & Wealth</h1>
+                <p style="color: var(--text-muted); font-size: 14px; max-width: 650px; line-height:1.5;">Unlock personalized roadmap recommendations, compile ATS resume ratings, simulate loan terms, write business canvas plans, and interact with live AI mentors today!</p>
+              </div>
+              <div class="glass-card" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); padding: 15px 25px; text-align: center; border-radius: 12px;">
+                <span style="font-size:11px; color: var(--text-muted); text-transform: uppercase; font-weight:600; letter-spacing:0.5px;">Progress Level</span>
+                <h3 id="overview-level-hero" style="font-family: var(--font-family-title); font-size: 18px; color: var(--accent-pink); margin-top: 4px;">Level 1: Explorer</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-grid">
           <!-- Overview statistics widgets -->
           <div class="glass-card span-3">
             <div class="stat-box">
-              <div class="stat-icon purple"><i class="fa-solid fa-award"></i></div>
+              <div class="stat-icon purple"><i class="fa-solid fa-gem"></i></div>
               <div class="stat-data">
-                <span class="stat-lbl">Empowerment Rank</span>
-                <span class="stat-val">Top 15%</span>
+                <span class="stat-lbl">Empowerment Points</span>
+                <span class="stat-val" id="overview-points">0 Points</span>
               </div>
             </div>
           </div>
@@ -184,17 +205,17 @@
             <div class="stat-box">
               <div class="stat-icon pink"><i class="fa-solid fa-graduation-cap"></i></div>
               <div class="stat-data">
-                <span class="stat-lbl">Roadmap Status</span>
-                <span class="stat-val">3 / 8 Steps</span>
+                <span class="stat-lbl">Roadmaps Started</span>
+                <span class="stat-val" id="overview-roadmaps">0 Active</span>
               </div>
             </div>
           </div>
           <div class="glass-card span-3">
             <div class="stat-box">
-              <div class="stat-icon teal"><i class="fa-solid fa-bullseye"></i></div>
+              <div class="stat-icon teal"><i class="fa-solid fa-wallet"></i></div>
               <div class="stat-data">
-                <span class="stat-lbl">Savings Achieved</span>
-                <span class="stat-val">$850 / $2k</span>
+                <span class="stat-lbl">Savings Balance</span>
+                <span class="stat-val" id="overview-savings">$0.00</span>
               </div>
             </div>
           </div>
@@ -203,7 +224,7 @@
               <div class="stat-icon gold"><i class="fa-solid fa-fire"></i></div>
               <div class="stat-data">
                 <span class="stat-lbl">Daily Streak</span>
-                <span class="stat-val">5 Days</span>
+                <span class="stat-val" id="overview-streak">1 Day (Today)</span>
               </div>
             </div>
           </div>
@@ -217,13 +238,13 @@
               <span class="text-muted" style="font-size: 13px;">Learning & Savings metrics combined</span>
             </div>
             <div class="svg-chart-container">
-              <div class="chart-bar" style="height: 35%;" data-value="Mon: 35m"></div>
-              <div class="chart-bar" style="height: 60%;" data-value="Tue: 60m"></div>
-              <div class="chart-bar" style="height: 45%;" data-value="Wed: 45m"></div>
-              <div class="chart-bar" style="height: 85%;" data-value="Thu: 85m"></div>
-              <div class="chart-bar" style="height: 70%;" data-value="Fri: 70m"></div>
-              <div class="chart-bar" style="height: 50%;" data-value="Sat: 50m"></div>
-              <div class="chart-bar" style="height: 90%;" data-value="Sun: 90m"></div>
+              <div class="chart-bar" style="height: 0%;" data-value="Mon: 0m"></div>
+              <div class="chart-bar" style="height: 0%;" data-value="Tue: 0m"></div>
+              <div class="chart-bar" style="height: 0%;" data-value="Wed: 0m"></div>
+              <div class="chart-bar" style="height: 0%;" data-value="Thu: 0m"></div>
+              <div class="chart-bar" style="height: 15%;" data-value="Fri (Today): 15m"></div>
+              <div class="chart-bar" style="height: 0%;" data-value="Sat: 0m"></div>
+              <div class="chart-bar" style="height: 0%;" data-value="Sun: 0m"></div>
             </div>
             <div class="chart-labels">
               <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
@@ -262,6 +283,69 @@
               "A woman with a voice is, by definition, a strong woman. But the search to find that voice can be remarkably difficult. We build ElevateHer AI to accelerate your path to financial and intellectual self-reliance."
             </blockquote>
             <cite style="font-size: 13px; color: var(--accent-rose); font-weight: 600;">— Melinda French Gates</cite>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. SOCIALIZE & CONNECT PANEL -->
+      <section id="socialize-panel" class="hub-panel hidden">
+        <div class="section-grid">
+          <!-- Left Column: Instagram Phone Simulator -->
+          <div class="glass-card span-5" style="display: flex; justify-content: center; align-items: center; padding: 20px;">
+            <div class="phone-frame">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <!-- Phone Header -->
+                <div class="phone-header">
+                  <div class="phone-logo">Instagram</div>
+                  <div class="phone-header-icons">
+                    <i class="fa-regular fa-heart" style="cursor: pointer;" onclick="alert('Viewing notifications (Simulated)')"></i>
+                    <i class="fa-regular fa-paper-plane" style="cursor: pointer;" onclick="setPhoneTab('dm')"></i>
+                  </div>
+                </div>
+
+                <!-- Phone Body Content Wrapper -->
+                <div class="phone-body" id="phone-body-content">
+                  <!-- Dynamic screens here: Feed, Reels, DM, Profile -->
+                </div>
+
+                <!-- Phone Bottom Tab Bar -->
+                <div class="phone-tabbar">
+                  <i class="fa-solid fa-house active" onclick="setPhoneTab('feed', this)"></i>
+                  <i class="fa-solid fa-magnifying-glass" onclick="setPhoneTab('explore', this)"></i>
+                  <i class="fa-solid fa-clapperboard" onclick="setPhoneTab('reels', this)"></i>
+                  <i class="fa-solid fa-comment-dots" onclick="setPhoneTab('dm', this)"></i>
+                  <i class="fa-solid fa-circle-user" onclick="setPhoneTab('profile', this)"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Features Checklist Tracker -->
+          <div class="glass-card span-7" style="display: flex; flex-direction: column;">
+            <div class="glass-card-header" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+              <span class="btn btn-secondary btn-sm" style="background: rgba(225, 48, 108, 0.15); border-color: #e1306c; color: #fff; pointer-events: none; padding: 4px 10px; font-size:11px;">
+                <i class="fa-brands fa-instagram"></i> Socialize & Connect
+              </span>
+              <h3>Instagram Feature Mastery Tracker</h3>
+              <p class="text-muted" style="font-size: 13px;">Check off features as you master or deploy them to boost your branding points!</p>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div style="margin: 15px 0; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border);">
+              <div style="display:flex; justify-content:space-between; margin-bottom: 8px; font-size:12px; font-weight:600;">
+                <span>Overall Mastery Progress</span>
+                <span id="mastery-percent">0% (0 / 150 Features)</span>
+              </div>
+              <div class="progress-bar-container" style="height: 10px; background: rgba(0,0,0,0.2);">
+                <div class="progress-bar-fill" id="mastery-progress-bar" style="width: 0%; background: linear-gradient(90deg, #fd5949, #d6249f, #285AEB);"></div>
+              </div>
+            </div>
+
+            <!-- Features Accordion Wrapper -->
+            <div class="accordion-container" id="features-accordion" style="flex-grow: 1; overflow-y: auto; max-height: 480px; padding-right: 5px;">
+              <!-- Rendered dynamically by app.js -->
+            </div>
           </div>
         </div>
       </section>
