@@ -2,8 +2,6 @@
 
 Thank you for your interest in contributing to **ElevateHer AI**! We welcome contributions from everyone. 💜
 
----
-
 ## Getting Started
 
 1. **Fork** the repository on GitHub.
@@ -19,8 +17,6 @@ cd STOCKHACK_v2v
 ```bash
 git checkout -b feature/your-feature-name
 ```
-
----
 
 ## Development Setup
 
@@ -42,8 +38,6 @@ cp .env.example .env
 npm run dev
 ```
 
----
-
 ## Making Changes
 
 - Follow the existing **code style** and conventions.
@@ -51,8 +45,6 @@ npm run dev
 - Add **comments** for complex logic.
 - Update **documentation** if needed.
 - Write **tests** for new features.
-
----
 
 ## Submitting a Pull Request
 
@@ -68,8 +60,6 @@ git push origin feature/your-feature-name
    - Why you made them
    - How to test them
 
----
-
 ## Pull Request Checklist
 
 - [ ] Code follows project style guidelines
@@ -78,15 +68,11 @@ git push origin feature/your-feature-name
 - [ ] Tests pass locally
 - [ ] Documentation is updated
 
----
-
 ## Reporting Issues
 
 - Search existing issues before creating a new one.
 - Use the issue templates provided.
 - Include steps to reproduce, expected vs actual behavior, and screenshots if applicable.
-
----
 
 ## Code of Conduct
 
@@ -94,8 +80,6 @@ git push origin feature/your-feature-name
 - Use welcoming and inclusive language.
 - Accept constructive feedback gracefully.
 - Focus on what is best for the community.
-
----
 
 ## Need Help?
 
