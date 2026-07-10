@@ -9,6 +9,8 @@ let appState = {
   studyTasks: [],
   transactions: [],
   forumPosts: [],
+  portfolioProjects: [],
+  goals: [],
   interviewState: {
     active: false,
     role: '',
@@ -43,6 +45,14 @@ const SCHEMES = [
   { name: "European Union Women Innovators Prize", category: "Cash Award", benefit: "€100,000 cash prizes for female founders and scientific innovators" }
 ];
 
+const FUNDING_SOURCES = [
+  { name: "Women Founder Seed Grant", stage: "Early Stage", region: "Global", sector: "EdTech / CareerTech", support: "$20,000 non-dilutive grant + mentorship" },
+  { name: "SheBuilds Accelerator", stage: "MVP", region: "Asia", sector: "SaaS / AI", support: "12-week accelerator, pitch day, expert office hours" },
+  { name: "ImpactHer Innovation Fund", stage: "Growth", region: "Africa", sector: "Fintech / Social Impact", support: "$50,000 blended capital support" },
+  { name: "Future of Work Women Fellowship", stage: "Idea", region: "Europe", sector: "Future of Work / Education", support: "Fellowship stipend, GTM support, founder circle" },
+  { name: "Women in Commerce VC Scout Program", stage: "Pre-seed", region: "Americas", sector: "Commerce / Consumer", support: "Investor access and traction review sessions" }
+];
+
 // ================= INITIALIZATION & AUTHENTICATION =================
 document.addEventListener('DOMContentLoaded', () => {
   setupAuthEventListeners();
@@ -59,6 +69,35 @@ function updateDate() {
 
 function saveUsersToLocalStorage() {
   localStorage.setItem('elevateher_users', JSON.stringify(appState.users));
+}
+
+function createDefaultUser(name, password) {
+  return {
+    name,
+    password,
+    level: "Level 1: Explorer",
+    points: 0,
+    streak: 1,
+    certifications: [],
+    studyTasks: [],
+    transactions: [],
+    portfolioProjects: [],
+    goals: [],
+    forumPosts: [
+      { id: 1, title: "Welcome to ElevateHer Forums!", body: "Ask questions, network, and grow together.", author: "System", date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }
+    ]
+  };
+}
+
+function ensureUserCollections(user) {
+  user.certifications = user.certifications || [];
+  user.studyTasks = user.studyTasks || [];
+  user.transactions = user.transactions || [];
+  user.portfolioProjects = user.portfolioProjects || [];
+  user.goals = user.goals || [];
+  user.forumPosts = user.forumPosts || [
+    { id: 1, title: "Welcome to ElevateHer Forums!", body: "Ask questions, network, and grow together.", author: "System", date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }
+  ];
 }
 
 function animateCardSwitch(fromCardId, toCardId) {
@@ -114,19 +153,7 @@ function setupAuthEventListeners() {
       return;
     }
 
-    appState.users[email] = {
-      name,
-      password,
-      level: "Level 1: Explorer",
-      points: 0,
-      streak: 1,
-      certifications: [],
-      studyTasks: [],
-      transactions: [],
-      forumPosts: [
-        { id: 1, title: "Welcome to ElevateHer Forums!", body: "Ask questions, network, and grow together.", author: "System", date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }
-      ]
-    };
+    appState.users[email] = createDefaultUser(name, password);
 
     saveUsersToLocalStorage();
     alert("Account created successfully! Please log in.");
@@ -151,19 +178,7 @@ function setupAuthEventListeners() {
     // Simulated Google Login
     const email = "google_user@gmail.com";
     if (!appState.users[email]) {
-      appState.users[email] = {
-        name: "Google Member",
-        password: "google_login_mock",
-        level: "Level 1: Explorer",
-        points: 0,
-        streak: 1,
-        certifications: [],
-        studyTasks: [],
-        transactions: [],
-        forumPosts: [
-          { id: 1, title: "Welcome to ElevateHer Forums!", body: "Ask questions, network, and grow together.", author: "System", date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }
-        ]
-      };
+      appState.users[email] = createDefaultUser("Google Member", "google_login_mock");
       saveUsersToLocalStorage();
     }
     startSession(email, appState.users[email]);
@@ -185,6 +200,7 @@ function restoreSession() {
 }
 
 function startSession(email, user) {
+  ensureUserCollections(user);
   appState.currentUser = email;
   localStorage.setItem('elevateher_active_session', email);
 
@@ -192,6 +208,8 @@ function startSession(email, user) {
   appState.certifications = user.certifications || [];
   appState.studyTasks = user.studyTasks || [];
   appState.transactions = user.transactions || [];
+  appState.portfolioProjects = user.portfolioProjects || [];
+  appState.goals = user.goals || [];
   appState.forumPosts = user.forumPosts || [];
 
   // Update UI Elements
@@ -223,7 +241,12 @@ function startSession(email, user) {
   renderForumPosts();
   renderScholarships(SCHOLARSHIPS);
   renderSchemes(SCHEMES);
+  renderPortfolioProjects();
+  renderGoalList();
+  renderFundingSources(FUNDING_SOURCES);
+  renderSmartRecommendations();
   renderSocializePanel();
+  changeMentorPersona();
 
   // Toggle View
   document.getElementById('auth-view').classList.add('hidden');
@@ -236,8 +259,11 @@ function updateUserDataState() {
     user.certifications = appState.certifications;
     user.studyTasks = appState.studyTasks;
     user.transactions = appState.transactions;
+    user.portfolioProjects = appState.portfolioProjects;
+    user.goals = appState.goals;
     user.forumPosts = appState.forumPosts;
     saveUsersToLocalStorage();
+    renderSmartRecommendations();
   }
 }
 
@@ -316,6 +342,8 @@ function setupHubEventListeners() {
   document.getElementById('cert-form').addEventListener('submit', handleAddCertification);
   document.getElementById('study-form').addEventListener('submit', handleAddStudyTask);
   document.getElementById('search-scholarship-btn').addEventListener('click', handleScholarshipSearch);
+  document.getElementById('generate-notes-btn').addEventListener('click', generateLearningNotes);
+  document.getElementById('ask-learning-btn').addEventListener('click', askLearningAssistant);
 
   // 2. Career Hub Events
   document.getElementById('analyze-resume-btn').addEventListener('click', analyzeResumeATS);
@@ -325,16 +353,21 @@ function setupHubEventListeners() {
     if (e.key === 'Enter') processInterviewTurn();
   });
   document.getElementById('check-gap-btn').addEventListener('click', checkSkillGap);
+  document.getElementById('build-resume-btn').addEventListener('click', buildResumeDraft);
+  document.getElementById('portfolio-form').addEventListener('submit', handleAddPortfolioProject);
+  document.getElementById('generate-career-roadmap-btn').addEventListener('click', generateCareerRoadmap);
 
   // 3. Finance Hub Events
   document.getElementById('transaction-form').addEventListener('submit', handleAddTransaction);
   document.getElementById('check-loan-btn').addEventListener('click', checkLoanEligibility);
   document.getElementById('search-scheme-btn').addEventListener('click', handleSchemeSearch);
+  document.getElementById('generate-investment-btn').addEventListener('click', generateInvestmentGuidance);
 
   // 4. Entrepreneurship Hub Events
   document.getElementById('generate-biz-btn').addEventListener('click', generateBusinessModel);
   document.getElementById('generate-marketing-btn').addEventListener('click', generateMarketingAssets);
   document.getElementById('run-growth-btn').addEventListener('click', simulateGrowthMetrics);
+  document.getElementById('search-funding-btn').addEventListener('click', handleFundingSearch);
 
   // 5. Mentorship & Community Events
   document.getElementById('mentor-select').addEventListener('change', changeMentorPersona);
@@ -343,8 +376,13 @@ function setupHubEventListeners() {
     if (e.key === 'Enter') sendMentorMessage();
   });
   document.getElementById('forum-post-form').addEventListener('submit', handleAddForumPost);
+  document.getElementById('match-mentor-btn').addEventListener('click', matchMentor);
+  document.getElementById('goal-form').addEventListener('submit', handleAddGoal);
 
-  // 6. Floating Global AI Assistant
+  // 6. Shared AI Utilities
+  document.getElementById('analyze-doc-btn').addEventListener('click', analyzeGenericDocument);
+
+  // 7. Floating Global AI Assistant
   const trigger = document.getElementById('floating-chat-trigger');
   const panel = document.getElementById('floating-chat-panel');
   const closeBtn = document.getElementById('close-floating-chat');
@@ -593,6 +631,65 @@ function handleScholarshipSearch() {
   renderScholarships(filtered);
 }
 
+function generateLearningNotes() {
+  const topic = document.getElementById('notes-topic').value.trim();
+  const source = document.getElementById('notes-source').value.trim();
+  const out = document.getElementById('notes-output');
+
+  if (!topic || !source) {
+    alert("Please enter a topic and source content!");
+    return;
+  }
+
+  const chunks = source
+    .split(/[\n\.]+/)
+    .map(line => line.trim())
+    .filter(Boolean)
+    .slice(0, 4);
+
+  const bulletHTML = chunks.length > 0
+    ? chunks.map((item, idx) => `<li><strong>Key Insight ${idx + 1}:</strong> ${item}</li>`).join('')
+    : `<li>Break the topic into definition, process, examples, and mistakes.</li>`;
+
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <h4 style="font-size:15px; margin-bottom:8px; color: var(--accent-pink);">${topic} - Smart Notes</h4>
+    <ul style="list-style: inside; display:flex; flex-direction:column; gap:8px; font-size:13px; color:var(--text-main);">
+      ${bulletHTML}
+    </ul>
+    <div style="margin-top: 12px; font-size: 12px; color: var(--text-muted);">
+      Revision Tip: Convert these notes into one practical task and one self-test question.
+    </div>
+  `;
+  addPoints(12);
+}
+
+function askLearningAssistant() {
+  const topic = document.getElementById('notes-topic').value.trim();
+  const source = document.getElementById('notes-source').value.trim();
+  const out = document.getElementById('notes-output');
+
+  if (!topic) {
+    alert("Please enter a learning topic first!");
+    return;
+  }
+
+  let reply = `To master ${topic}, start with fundamentals, practice one small example, and then explain it back in your own words.`;
+  const lower = `${topic} ${source}`.toLowerCase();
+
+  if (lower.includes('sql')) reply = "For SQL, learn SELECT, WHERE, GROUP BY, and JOINs in that order. Then solve 5 dataset questions using real tables.";
+  else if (lower.includes('ux') || lower.includes('design')) reply = "For UX, move through user research, wireframes, prototypes, and usability testing. Build one case study after every major concept.";
+  else if (lower.includes('python') || lower.includes('data')) reply = "For Python/Data, focus on syntax, lists/dictionaries, Pandas, and basic EDA before jumping into models.";
+
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <h4 style="font-size:15px; margin-bottom:8px; color: var(--accent-teal);">Learning Assistant Response</h4>
+    <p style="font-size:13px; line-height:1.6; color:var(--text-main);">${reply}</p>
+    <div style="margin-top: 12px; font-size: 12px; color: var(--text-muted);">Next Action: Add one study task in the planner and one checkpoint question for yourself.</div>
+  `;
+  addPoints(8);
+}
+
 // ------ B. CAREER ENGINE ------
 function analyzeResumeATS() {
   const text = document.getElementById('resume-text').value.trim();
@@ -803,6 +900,155 @@ function checkSkillGap() {
   }, 1000);
 }
 
+function buildResumeDraft() {
+  const name = document.getElementById('builder-name').value.trim();
+  const role = document.getElementById('builder-role').value.trim();
+  const skills = document.getElementById('builder-skills').value.trim();
+  const exp = document.getElementById('builder-exp').value.trim();
+  const out = document.getElementById('resume-builder-output');
+
+  if (!name || !role || !skills || !exp) {
+    alert("Please fill all resume builder fields!");
+    return;
+  }
+
+  const skillList = skills.split(',').map(s => s.trim()).filter(Boolean);
+  const expBullets = exp
+    .split(/[\n\.]+/)
+    .map(item => item.trim())
+    .filter(Boolean)
+    .slice(0, 4);
+
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <div style="padding: 16px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(255,255,255,0.03);">
+      <h4 style="font-size:18px; font-family: var(--font-family-title); margin-bottom:6px;">${name}</h4>
+      <div style="font-size:13px; color: var(--accent-pink); margin-bottom:14px;">Target Role: ${role}</div>
+      <div style="margin-bottom:12px;">
+        <strong style="font-size:13px;">Professional Summary</strong>
+        <p style="font-size:13px; color:var(--text-muted); margin-top:6px;">Results-oriented candidate preparing for ${role} opportunities with strengths in ${skillList.slice(0, 3).join(', ')} and hands-on execution across projects and self-driven learning.</p>
+      </div>
+      <div style="margin-bottom:12px;">
+        <strong style="font-size:13px;">Core Skills</strong>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+          ${skillList.map(skill => `<span class="btn btn-secondary btn-sm" style="pointer-events:none;">${skill}</span>`).join('')}
+        </div>
+      </div>
+      <div>
+        <strong style="font-size:13px;">Experience Highlights</strong>
+        <ul style="list-style: inside; display:flex; flex-direction:column; gap:6px; margin-top:8px; font-size:13px;">
+          ${expBullets.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  `;
+  addPoints(18);
+}
+
+function renderPortfolioProjects() {
+  const container = document.getElementById('portfolio-list');
+  if (!container) return;
+
+  if (appState.portfolioProjects.length === 0) {
+    container.innerHTML = `<div style="font-size:12px; color:var(--text-muted); text-align:center;">No portfolio projects added yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  appState.portfolioProjects.forEach(project => {
+    container.innerHTML += `
+      <div class="card-item" style="flex-direction:column; align-items:stretch; gap:10px;">
+        <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+          <div>
+            <div class="card-item-title">${project.title}</div>
+            <div class="card-item-subtitle">${project.stack}${project.link ? ` • ${project.link}` : ''}</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="deletePortfolioProject(${project.id})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+        <div style="font-size:13px; color:var(--text-main); line-height:1.5;">${project.summary}</div>
+      </div>
+    `;
+  });
+}
+
+function handleAddPortfolioProject(e) {
+  e.preventDefault();
+  const title = document.getElementById('portfolio-project').value.trim();
+  const stack = document.getElementById('portfolio-stack').value.trim();
+  const link = document.getElementById('portfolio-link').value.trim();
+  const summary = document.getElementById('portfolio-summary').value.trim();
+
+  if (!title || !stack || !summary) return;
+
+  appState.portfolioProjects.unshift({
+    id: Date.now(),
+    title,
+    stack,
+    link,
+    summary
+  });
+
+  updateUserDataState();
+  renderPortfolioProjects();
+  document.getElementById('portfolio-form').reset();
+  addPoints(14);
+}
+
+window.deletePortfolioProject = function(id) {
+  appState.portfolioProjects = appState.portfolioProjects.filter(project => project.id !== id);
+  updateUserDataState();
+  renderPortfolioProjects();
+};
+
+function generateCareerRoadmap() {
+  const role = document.getElementById('career-roadmap-role').value.trim();
+  const out = document.getElementById('career-roadmap-output');
+
+  if (!role) {
+    alert("Please enter a target role!");
+    return;
+  }
+
+  let steps = [
+    `Build core concepts and vocabulary for ${role}.`,
+    `Complete 2 guided projects aligned with ${role}.`,
+    `Create a resume + portfolio tailored for ${role}.`,
+    `Practice interviews, networking, and applications weekly.`
+  ];
+
+  if (role.toLowerCase().includes('data')) {
+    steps = [
+      "Learn SQL, Excel, and Python/Pandas fundamentals.",
+      "Practice dashboards, KPIs, and storytelling with data.",
+      "Build 2 analysis case studies with before/after insights.",
+      "Target analyst internships, freelance tasks, and portfolio reviews."
+    ];
+  } else if (role.toLowerCase().includes('design')) {
+    steps = [
+      "Study UX research, information architecture, and Figma basics.",
+      "Create wireframes and polished UI systems for 2 use cases.",
+      "Publish detailed case studies focused on process and impact.",
+      "Apply to product design roles with portfolio walkthrough practice."
+    ];
+  }
+
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <div class="timeline">
+      ${steps.map((step, index) => `
+        <div class="timeline-item">
+          <div class="timeline-dot ${index === 0 ? 'completed' : ''}">${index === 0 ? '<i class="fa-solid fa-check" style="font-size:8px;"></i>' : ''}</div>
+          <div class="timeline-content">
+            <h4>Stage ${index + 1}</h4>
+            <p>${step}</p>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  addPoints(16);
+}
+
 
 // ------ C. FINANCE ENGINE ------
 function renderTransactions() {
@@ -922,6 +1168,57 @@ function handleSchemeSearch() {
   renderSchemes(filtered);
 }
 
+window.loadLiteracyModule = function(moduleKey) {
+  const out = document.getElementById('literacy-output');
+  const modules = {
+    budgeting: {
+      title: "Budgeting Foundations",
+      body: "Start by splitting monthly cash flow into essentials, growth, and flexible spending. Review subscriptions, track weekly leaks, and assign every rupee or dollar a job."
+    },
+    emergency: {
+      title: "Emergency Funds",
+      body: "Aim for 3-6 months of essentials. Keep this amount in low-risk, easy-access savings and build it before aggressive investing or non-essential purchases."
+    },
+    credit: {
+      title: "Debt & Credit Basics",
+      body: "Pay on time, keep utilization low, and avoid stacking high-interest debt. Strong credit habits reduce borrowing costs and improve future financial flexibility."
+    }
+  };
+
+  const mod = modules[moduleKey];
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <h4 style="font-size:15px; margin-bottom:8px; color: var(--accent-pink);">${mod.title}</h4>
+    <p style="font-size:13px; line-height:1.6; color:var(--text-main);">${mod.body}</p>
+    <div style="margin-top: 12px; font-size:12px; color:var(--text-muted);">Action Prompt: Write one habit you can apply this week from this module.</div>
+  `;
+  addPoints(6);
+};
+
+function generateInvestmentGuidance() {
+  const horizon = document.getElementById('invest-horizon').value;
+  const risk = document.getElementById('invest-risk').value;
+  const out = document.getElementById('investment-output');
+
+  let guidance = "Balance savings safety with long-term consistency.";
+  if (horizon === 'short' && risk === 'low') guidance = "Prioritize capital safety: emergency fund, high-yield savings, short-duration low-volatility instruments, and avoid locking money in risky assets.";
+  else if (horizon === 'medium' && risk === 'medium') guidance = "Blend safety and growth: keep a reserve fund, then diversify across broad market, fixed-income, and goal-linked savings buckets.";
+  else if (horizon === 'long' && risk === 'high') guidance = "For long horizons, volatility can be tolerated more. Focus on disciplined investing in diversified growth-oriented assets with regular contributions and yearly reviews.";
+  else if (risk === 'low') guidance = "Because your risk comfort is low, focus first on consistency, diversification, and capital preservation before chasing higher returns.";
+
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <h4 style="font-size:15px; margin-bottom:8px; color: var(--accent-teal);">Educational Guidance</h4>
+    <p style="font-size:13px; line-height:1.6; color:var(--text-main);">${guidance}</p>
+    <ul style="list-style: inside; display:flex; flex-direction:column; gap:6px; margin-top:10px; font-size:13px; color:var(--text-muted);">
+      <li>Keep emergency savings separate from investing capital.</li>
+      <li>Review goals, timeline, and risk once every quarter.</li>
+      <li>This module is educational, not financial advice.</li>
+    </ul>
+  `;
+  addPoints(10);
+}
+
 
 // ------ D. ENTREPRENEURSHIP ENGINE ------
 function generateBusinessModel() {
@@ -1025,6 +1322,36 @@ function simulateGrowthMetrics() {
   `;
 
   addPoints(10);
+}
+
+function renderFundingSources(list) {
+  const container = document.getElementById('funding-list');
+  if (!container) return;
+
+  container.innerHTML = '';
+  list.forEach(item => {
+    container.innerHTML += `
+      <div class="card-item">
+        <div>
+          <div class="card-item-title">${item.name}</div>
+          <div class="card-item-subtitle">${item.stage} • ${item.region} • ${item.sector}</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:5px;">${item.support}</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="alert('Funding program bookmarked!')">Save</button>
+      </div>
+    `;
+  });
+}
+
+function handleFundingSearch() {
+  const query = document.getElementById('funding-search').value.toLowerCase().trim();
+  const filtered = FUNDING_SOURCES.filter(item =>
+    item.name.toLowerCase().includes(query) ||
+    item.stage.toLowerCase().includes(query) ||
+    item.region.toLowerCase().includes(query) ||
+    item.sector.toLowerCase().includes(query)
+  );
+  renderFundingSources(filtered);
 }
 
 
@@ -1171,6 +1498,131 @@ function handleAddForumPost(e) {
   addPoints(15);
 }
 
+function matchMentor() {
+  const goal = document.getElementById('mentor-match-goal').value;
+  const out = document.getElementById('mentor-match-output');
+  const mapping = {
+    career: [
+      { name: "Sophia", fit: "Best for product, engineering, execution strategy, and career navigation." },
+      { name: "Aria", fit: "Useful as accountability support for career budgeting and transitions." }
+    ],
+    startup: [
+      { name: "Elara", fit: "Strong match for pitch decks, investor readiness, and early traction plans." },
+      { name: "Sophia", fit: "Helpful for execution roadmap, product prioritization, and MVP structure." }
+    ],
+    finance: [
+      { name: "Aria", fit: "Best match for savings habits, debt strategy, and practical money systems." },
+      { name: "Elara", fit: "Helpful when finance intersects with startup fundraising strategy." }
+    ],
+    learning: [
+      { name: "Sophia", fit: "Useful for structured learning plans and practical project milestones." },
+      { name: "Aria", fit: "Supports discipline, habit systems, and sustainable long-term routines." }
+    ]
+  };
+
+  out.innerHTML = '';
+  mapping[goal].forEach(item => {
+    out.innerHTML += `
+      <div class="card-item" style="flex-direction:column; align-items:stretch; gap:8px;">
+        <div class="card-item-title">${item.name}</div>
+        <div class="card-item-subtitle">${item.fit}</div>
+      </div>
+    `;
+  });
+  addPoints(9);
+}
+
+function renderGoalList() {
+  const container = document.getElementById('goal-list');
+  if (!container) return;
+
+  if (appState.goals.length === 0) {
+    container.innerHTML = `<div style="font-size:12px; color:var(--text-muted); text-align:center;">No goals added yet. Add your first milestone.</div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  appState.goals.forEach(goal => {
+    container.innerHTML += `
+      <div class="card-item">
+        <div>
+          <div class="card-item-title" style="text-decoration:${goal.completed ? 'line-through' : 'none'};">${goal.title}</div>
+          <div class="card-item-subtitle">${goal.hub.toUpperCase()} • ${goal.deadline}</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-sm" onclick="toggleGoal(${goal.id})">${goal.completed ? 'Reopen' : 'Done'}</button>
+          <button class="btn btn-secondary btn-sm" onclick="deleteGoal(${goal.id})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function handleAddGoal(e) {
+  e.preventDefault();
+  const title = document.getElementById('goal-title').value.trim();
+  const deadline = document.getElementById('goal-deadline').value.trim();
+  const hub = document.getElementById('goal-hub').value;
+  if (!title || !deadline) return;
+
+  appState.goals.unshift({
+    id: Date.now(),
+    title,
+    deadline,
+    hub,
+    completed: false
+  });
+
+  updateUserDataState();
+  renderGoalList();
+  document.getElementById('goal-form').reset();
+  addPoints(10);
+}
+
+window.toggleGoal = function(id) {
+  const goal = appState.goals.find(item => item.id === id);
+  if (!goal) return;
+  goal.completed = !goal.completed;
+  updateUserDataState();
+  renderGoalList();
+  if (goal.completed) addPoints(12);
+};
+
+window.deleteGoal = function(id) {
+  appState.goals = appState.goals.filter(goal => goal.id !== id);
+  updateUserDataState();
+  renderGoalList();
+};
+
+function renderSmartRecommendations() {
+  const container = document.getElementById('smart-recommendations-list');
+  if (!container) return;
+
+  const recommendations = [];
+  recommendations.push(appState.studyTasks.length === 0
+    ? { title: "Start a study habit", subtitle: "Add one study planner task to activate your Education Hub momentum." }
+    : { title: "Review your next lesson", subtitle: `You have ${appState.studyTasks.length} study task(s). Complete one today for consistency.` });
+
+  recommendations.push(appState.portfolioProjects.length === 0
+    ? { title: "Build your portfolio", subtitle: "Add one project in the Career Hub to make applications stronger." }
+    : { title: "Polish portfolio storytelling", subtitle: `You already have ${appState.portfolioProjects.length} project(s). Improve impact statements and links.` });
+
+  recommendations.push(appState.transactions.length === 0
+    ? { title: "Track one transaction", subtitle: "Log income or expense once to unlock finance visibility." }
+    : { title: "Review savings progress", subtitle: "Your finance data is active. Compare balance with your next goal milestone." });
+
+  recommendations.push(appState.goals.length === 0
+    ? { title: "Set one measurable goal", subtitle: "Create a 30-day milestone in Mentorship & Community." }
+    : { title: "Complete one goal this week", subtitle: `${appState.goals.filter(goal => goal.completed).length} goal(s) completed so far. Keep building momentum.` });
+
+  container.innerHTML = recommendations.map(item => `
+    <div class="card-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+      <div class="card-item-title">${item.title}</div>
+      <div class="card-item-subtitle">${item.subtitle}</div>
+    </div>
+  `).join('');
+}
+
 // ------ F. GLOBAL FLOATING AI ASSISTANT ------
 function sendFloatingMessage() {
   const inputEl = document.getElementById('floating-input');
@@ -1209,6 +1661,46 @@ function sendFloatingMessage() {
     container.scrollTop = container.scrollHeight;
     addPoints(5);
   }, 1000);
+}
+
+function analyzeGenericDocument() {
+  const type = document.getElementById('doc-type').value;
+  const text = document.getElementById('doc-input').value.trim();
+  const out = document.getElementById('doc-analysis-output');
+
+  if (!text) {
+    alert("Please paste a document first!");
+    return;
+  }
+
+  let score = 60;
+  if (text.length > 600) score += 10;
+  if (text.includes('\n')) score += 5;
+  if (text.toLowerCase().includes('impact') || text.toLowerCase().includes('goal') || text.toLowerCase().includes('strategy')) score += 10;
+  score = Math.min(score, 95);
+
+  const summaries = {
+    resume: "Focus on measurable achievements, strong action verbs, and clearer skill positioning.",
+    sop: "Strengthen motivation, story flow, and why-this-program alignment.",
+    "business-plan": "Clarify customer problem, market size, and execution plan with sharper structure."
+  };
+
+  out.classList.remove('hidden');
+  out.innerHTML = `
+    <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:12px;">
+      <div>
+        <h4 style="font-size:15px; color:var(--accent-pink); text-transform:capitalize;">${type.replace('-', ' ')} Review</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-top:5px;">${summaries[type]}</p>
+      </div>
+      <div class="btn btn-secondary btn-sm" style="pointer-events:none;">Score ${score}/100</div>
+    </div>
+    <ul style="list-style: inside; display:flex; flex-direction:column; gap:6px; font-size:13px;">
+      <li>Keep section headings clean and easy to scan.</li>
+      <li>Add 2-3 concrete outcomes or proof points.</li>
+      <li>Reduce vague phrasing and improve specificity.</li>
+    </ul>
+  `;
+  addPoints(12);
 }
 
 // ================= G. SOCIALIZE & CONNECT ENGINE =================

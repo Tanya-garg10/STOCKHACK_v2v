@@ -285,6 +285,38 @@
             <cite style="font-size: 13px; color: var(--accent-rose); font-weight: 600;">— Melinda French Gates</cite>
           </div>
         </div>
+
+        <div class="section-grid">
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-file-waveform"></i> AI Document Analyzer</h3>
+            </div>
+            <div class="form-group">
+              <label for="doc-type">Choose Document Type</label>
+              <select id="doc-type" class="form-control">
+                <option value="resume">Resume</option>
+                <option value="sop">Statement of Purpose</option>
+                <option value="business-plan">Business Plan</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="doc-input">Paste your document content</label>
+              <textarea id="doc-input" class="form-control" rows="7" placeholder="Paste your draft here..."></textarea>
+            </div>
+            <button id="analyze-doc-btn" class="btn">Analyze Document</button>
+            <div id="doc-analysis-output" class="hidden" style="margin-top: 20px; padding: 15px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(255,255,255,0.03);"></div>
+          </div>
+
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-brain"></i> Smart Recommendations Center</h3>
+            </div>
+            <p class="text-muted" style="font-size: 13px; margin-bottom: 15px;">Adaptive suggestions based on your current progress in the platform.</p>
+            <div id="smart-recommendations-list" class="card-list">
+              <!-- recommendations injected by app.js -->
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- 7. SOCIALIZE & CONNECT PANEL -->
@@ -444,6 +476,47 @@
             </div>
           </div>
         </div>
+
+        <div class="section-grid">
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-note-sticky"></i> AI Notes & Learning Assistant</h3>
+            </div>
+            <div class="form-group">
+              <label for="notes-topic">Learning Topic</label>
+              <input type="text" id="notes-topic" class="form-control" placeholder="e.g., SQL Joins, Budgeting Basics, UX Research">
+            </div>
+            <div class="form-group">
+              <label for="notes-source">Paste study content or key concepts</label>
+              <textarea id="notes-source" class="form-control" rows="7" placeholder="Paste your lesson notes, transcript, article, or concepts..."></textarea>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button id="generate-notes-btn" class="btn btn-sm">Generate Smart Notes</button>
+              <button id="ask-learning-btn" class="btn btn-secondary btn-sm">Ask Learning Assistant</button>
+            </div>
+            <div id="notes-output" class="hidden" style="margin-top: 20px; padding: 15px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(255,255,255,0.03);"></div>
+          </div>
+
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-lightbulb"></i> Learning Reflection Prompt</h3>
+            </div>
+            <div class="card-list">
+              <div class="card-item" style="flex-direction: column; align-items: stretch;">
+                <div class="card-item-title">What did you learn today?</div>
+                <div class="card-item-subtitle">Write one concept in your own words and one practical use case.</div>
+              </div>
+              <div class="card-item" style="flex-direction: column; align-items: stretch;">
+                <div class="card-item-title">Where are you stuck?</div>
+                <div class="card-item-subtitle">List one confusion point and convert it into a next action task.</div>
+              </div>
+              <div class="card-item" style="flex-direction: column; align-items: stretch;">
+                <div class="card-item-title">How will you revise?</div>
+                <div class="card-item-subtitle">Turn your notes into 3 flashcards or a mini checklist before tomorrow.</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- 3. CAREER HUB PANEL -->
@@ -591,6 +664,63 @@
             </div>
           </div>
         </div>
+
+        <div class="section-grid">
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-file-lines"></i> AI Resume Builder</h3>
+            </div>
+            <div class="form-group">
+              <label for="builder-name">Full Name</label>
+              <input type="text" id="builder-name" class="form-control" placeholder="e.g., Aisha Khan">
+            </div>
+            <div class="form-group">
+              <label for="builder-role">Target Role</label>
+              <input type="text" id="builder-role" class="form-control" placeholder="e.g., Frontend Developer">
+            </div>
+            <div class="form-group">
+              <label for="builder-skills">Top Skills</label>
+              <input type="text" id="builder-skills" class="form-control" placeholder="React, JavaScript, CSS, Git">
+            </div>
+            <div class="form-group">
+              <label for="builder-exp">Experience Highlights</label>
+              <textarea id="builder-exp" class="form-control" rows="5" placeholder="Built dashboard, improved performance, led project delivery..."></textarea>
+            </div>
+            <button id="build-resume-btn" class="btn">Build Resume Draft</button>
+            <div id="resume-builder-output" class="hidden" style="margin-top: 20px;"></div>
+          </div>
+
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-diagram-project"></i> Portfolio Builder</h3>
+            </div>
+            <form id="portfolio-form" style="display:flex; flex-direction:column; gap:12px;">
+              <input type="text" id="portfolio-project" class="form-control" placeholder="Project Title" required>
+              <input type="text" id="portfolio-stack" class="form-control" placeholder="Tech Stack / Tools" required>
+              <input type="text" id="portfolio-link" class="form-control" placeholder="Project Link / GitHub / Behance">
+              <textarea id="portfolio-summary" class="form-control" rows="3" placeholder="Impact, problem solved, and your contribution" required></textarea>
+              <button type="submit" class="btn btn-sm">Add Portfolio Project</button>
+            </form>
+            <div id="portfolio-list" class="card-list" style="margin-top: 20px;">
+              <!-- projects injected -->
+            </div>
+          </div>
+        </div>
+
+        <div class="section-grid">
+          <div class="glass-card span-12">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-map"></i> Career Roadmap Generator</h3>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <input type="text" id="career-roadmap-role" class="form-control" placeholder="e.g., Product Designer, Data Analyst, Full Stack Developer" style="flex:1; min-width: 260px;">
+              <button id="generate-career-roadmap-btn" class="btn">Generate Career Roadmap</button>
+            </div>
+            <div id="career-roadmap-output" class="hidden" style="margin-top: 20px;">
+              <!-- roadmap injected -->
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- 4. FINANCE HUB PANEL -->
@@ -708,6 +838,62 @@
                 <!-- Javascript maps rows here -->
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <div class="section-grid">
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-book-open-reader"></i> Financial Literacy Modules</h3>
+            </div>
+            <div class="card-list">
+              <div class="card-item">
+                <div>
+                  <div class="card-item-title">Budgeting Foundations</div>
+                  <div class="card-item-subtitle">Needs vs wants, monthly planning, expense grouping</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="loadLiteracyModule('budgeting')">Open</button>
+              </div>
+              <div class="card-item">
+                <div>
+                  <div class="card-item-title">Emergency Funds</div>
+                  <div class="card-item-subtitle">How much to save and where to keep it</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="loadLiteracyModule('emergency')">Open</button>
+              </div>
+              <div class="card-item">
+                <div>
+                  <div class="card-item-title">Debt & Credit Basics</div>
+                  <div class="card-item-subtitle">Credit score, repayment habits, debt safety</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="loadLiteracyModule('credit')">Open</button>
+              </div>
+            </div>
+            <div id="literacy-output" class="hidden" style="margin-top: 20px; padding: 15px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(255,255,255,0.03);"></div>
+          </div>
+
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-chart-pie"></i> Investment Guidance</h3>
+            </div>
+            <div class="form-group">
+              <label for="invest-horizon">Time Horizon</label>
+              <select id="invest-horizon" class="form-control">
+                <option value="short">Short Term (0-2 years)</option>
+                <option value="medium">Medium Term (3-5 years)</option>
+                <option value="long">Long Term (5+ years)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="invest-risk">Risk Comfort</label>
+              <select id="invest-risk" class="form-control">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <button id="generate-investment-btn" class="btn">Generate Guidance</button>
+            <div id="investment-output" class="hidden" style="margin-top: 20px; padding: 15px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(255,255,255,0.03);"></div>
           </div>
         </div>
       </section>
@@ -840,6 +1026,50 @@
             </div>
           </div>
         </div>
+
+        <div class="section-grid">
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-hand-holding-dollar"></i> Funding & Grant Finder</h3>
+            </div>
+            <div style="display:flex; gap:10px; margin-bottom: 20px;">
+              <input type="text" id="funding-search" class="form-control" placeholder="Search by stage, region, sector...">
+              <button id="search-funding-btn" class="btn btn-secondary btn-sm"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div id="funding-list" class="card-list">
+              <!-- funding injected -->
+            </div>
+          </div>
+
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-toolbox"></i> Startup Resources</h3>
+            </div>
+            <div id="startup-resources-list" class="card-list">
+              <div class="card-item">
+                <div>
+                  <div class="card-item-title">Legal Setup Checklist</div>
+                  <div class="card-item-subtitle">Business registration, compliance, founder agreement basics</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="alert('Startup legal checklist reviewed!')">Review</button>
+              </div>
+              <div class="card-item">
+                <div>
+                  <div class="card-item-title">Go-To-Market Starter Kit</div>
+                  <div class="card-item-subtitle">ICP, messaging, launch channels, and first-customer funnel</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="alert('Go-to-market starter kit opened!')">Open</button>
+              </div>
+              <div class="card-item">
+                <div>
+                  <div class="card-item-title">Pitch Deck Essentials</div>
+                  <div class="card-item-subtitle">Problem, traction, market, business model, ask, and team slides</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="alert('Pitch deck essentials loaded!')">Open</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- 6. COMMUNITY & MENTORSHIP PANEL -->
@@ -926,6 +1156,47 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <div class="section-grid">
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-people-arrows"></i> Mentor Matching</h3>
+            </div>
+            <div class="form-group">
+              <label for="mentor-match-goal">Choose your primary goal</label>
+              <select id="mentor-match-goal" class="form-control">
+                <option value="career">Career Growth</option>
+                <option value="startup">Startup / Fundraising</option>
+                <option value="finance">Budgeting / Wealth</option>
+                <option value="learning">Learning Accountability</option>
+              </select>
+            </div>
+            <button id="match-mentor-btn" class="btn">Find Best Mentor Match</button>
+            <div id="mentor-match-output" class="card-list" style="margin-top: 20px;">
+              <!-- mentor cards injected -->
+            </div>
+          </div>
+
+          <div class="glass-card span-6">
+            <div class="glass-card-header">
+              <h3><i class="fa-solid fa-bullseye"></i> Goal Tracking</h3>
+            </div>
+            <form id="goal-form" style="display:flex; flex-direction:column; gap:12px;">
+              <input type="text" id="goal-title" class="form-control" placeholder="Goal title" required>
+              <input type="text" id="goal-deadline" class="form-control" placeholder="Deadline or milestone e.g. 30 days" required>
+              <select id="goal-hub" class="form-control">
+                <option value="education">Education</option>
+                <option value="career">Career</option>
+                <option value="finance">Finance</option>
+                <option value="startup">Startup</option>
+              </select>
+              <button type="submit" class="btn btn-sm">Add Goal</button>
+            </form>
+            <div id="goal-list" class="card-list" style="margin-top: 20px;">
+              <!-- goals injected -->
+            </div>
           </div>
         </div>
       </section>
