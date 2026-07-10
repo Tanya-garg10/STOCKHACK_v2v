@@ -1,6 +1,8 @@
-# Contributing to ElevateHer AI
+﻿# Contributing to ElevateHer AI
 
-Thank you for your interest in contributing to **ElevateHer AI**! We welcome contributions from everyone. ??
+Thank you for your interest in contributing to **ElevateHer AI**! We welcome contributions from everyone. 💜
+
+---
 
 ## Getting Started
 
@@ -14,6 +16,8 @@ Thank you for your interest in contributing to **ElevateHer AI**! We welcome con
    `ash
    git checkout -b feature/your-feature-name
    `
+
+---
 
 ## Development Setup
 
@@ -30,6 +34,8 @@ Thank you for your interest in contributing to **ElevateHer AI**! We welcome con
    npm run dev
    `
 
+---
+
 ## Making Changes
 
 - Follow the existing **code style** and conventions.
@@ -37,6 +43,8 @@ Thank you for your interest in contributing to **ElevateHer AI**! We welcome con
 - Add **comments** for complex logic.
 - Update **documentation** if needed.
 - Write **tests** for new features.
+
+---
 
 ## Submitting a Pull Request
 
@@ -50,6 +58,8 @@ Thank you for your interest in contributing to **ElevateHer AI**! We welcome con
    - Why you made them
    - How to test them
 
+---
+
 ## Pull Request Checklist
 
 - [ ] Code follows project style guidelines
@@ -58,11 +68,15 @@ Thank you for your interest in contributing to **ElevateHer AI**! We welcome con
 - [ ] Tests pass locally
 - [ ] Documentation is updated
 
+---
+
 ## Reporting Issues
 
 - Search existing issues before creating a new one.
 - Use the issue templates provided.
 - Include steps to reproduce, expected vs actual behavior, and screenshots if applicable.
+
+---
 
 ## Code of Conduct
 
@@ -71,6 +85,8 @@ Thank you for your interest in contributing to **ElevateHer AI**! We welcome con
 - Accept constructive feedback gracefully.
 - Focus on what is best for the community.
 
+---
+
 ## Need Help?
 
 Feel free to reach out via:
@@ -78,4 +94,4 @@ Feel free to reach out via:
 - **Discord:** https://discord.gg/elevateher
 - **Email:** support@elevateher.ai
 
-Happy coding! ??
+Happy coding! 🚀
