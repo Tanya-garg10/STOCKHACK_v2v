@@ -377,6 +377,17 @@ body::after {
   font-size: 14px;
 }
 
+.auth-status-banner {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .auth-toggle {
   text-align: center;
   margin-top: 20px;
@@ -639,6 +650,34 @@ body::after {
   gap: 20px;
 }
 
+.header-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.header-select {
+  min-width: 110px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  color: var(--text-main);
+  padding: 9px 14px;
+  font-size: 12px;
+}
+
+.header-select:focus {
+  outline: none;
+  border-color: var(--accent-pink);
+}
+
 .notif-bell {
   position: relative;
   background: rgba(255, 255, 255, 0.05);
@@ -889,6 +928,71 @@ body::after {
 
 .card-item:hover {
   background: rgba(255, 255, 255, 0.05);
+}
+
+.insight-box {
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.insight-box h4 {
+  font-family: var(--font-family-title);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.insight-box p,
+.insight-box li {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.insight-box ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(236, 64, 122, 0.22);
+  background: rgba(236, 64, 122, 0.08);
+  color: var(--text-main);
+  font-size: 11px;
+}
+
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.check-row i {
+  margin-top: 2px;
+  color: var(--accent-teal);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 18px;
+  border: 1px dashed var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-size: 12px;
 }
 
 .card-item-title {
@@ -1837,6 +1941,12 @@ body::after {
     display: none; /* Show only icons on mobile/tablet */
   }
   .brand-name, .user-meta {
+    display: none;
+  }
+  .header-controls {
+    display: none;
+  }
+  .header-chip {
     display: none;
   }
   .main-content {
